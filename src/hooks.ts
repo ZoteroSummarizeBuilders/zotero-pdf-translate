@@ -76,7 +76,6 @@ const FullText = async () => {
 
 // ChatGPT の要約結果
 function GPT_summary(item: Zotero.Item) {
-  // const item = ZoteroPane.getSelectedItems()[0];
   var abstract = item.getField("abstractNote");
   // addon.data.translate.selectedText = "I love bananas. It is nice!!";
   addon.data.translate.selectedText = abstract.toString();
@@ -114,16 +113,15 @@ function GPT_tag() {
 
 // ここに「pdfが読み込まれた時に実行される関数」を記述する
 function onLoadingPdf(id: string) {
+  const item = ZoteroPane.getSelectedItems()[0];
   if (summaries[id] == undefined) {
-    summaries[id] = GPT_summary();
+    summaries[id] = GPT_summary(item);
     // window.alert(
     //   "id:" + id + "の論文に要約を追加"
     // );
   }
 
   summaries[item.id] = GPT_summary(item);
-
-
 
   const summary = window.document.getElementById("generated-summary");
   if (summary != null) {
@@ -142,7 +140,6 @@ function onLoadingPdf(id: string) {
     // );
   }
 }
-
 
 // ここに「論文を選択したときに実行される関数」を記述する
 function onSelectItem() {

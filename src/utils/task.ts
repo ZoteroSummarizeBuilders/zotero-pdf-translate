@@ -140,6 +140,7 @@ export function addTranslateTask(
   if (!raw) {
     return;
   }
+  window.alert("after !raw");
   type = type || "text";
   // Filter raw string
   // eslint-disable-next-line no-control-regex
@@ -155,6 +156,7 @@ export function addTranslateTask(
     lastTask.extraTasks.forEach((extraTask) => (extraTask.raw += " " + raw));
     return;
   }
+  window.alert("after isConcatMode && lastTask");
   // Create a new task
   const newTask: TranslateTask = {
     id: `${Zotero.Utilities.randomString()}-${new Date().getTime()}`,
@@ -202,6 +204,7 @@ export function addTranslateTask(
   }
   // Keep queue size
   cleanTasks();
+  window.alert("before new task return!");
   return newTask;
 }
 
