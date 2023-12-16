@@ -264,10 +264,6 @@ async function onStartup() {
 
 // Zoteroの起動時
 async function onMainWindowLoad(win: Window): Promise<void> {
-  const btn = document.getElementById("summary-button");
-  btn?.addEventListener("click", () => {
-    /*要約を表示する関数*/
-  });
   await new Promise((resolve) => {
     if (win.document.readyState !== "complete") {
       win.document.addEventListener("readystatechange", () => {
@@ -292,6 +288,11 @@ async function onMainWindowLoad(win: Window): Promise<void> {
   // onLoadingPdf();
 
   initListener();
+
+  const btn = document.getElementById("summary-button");
+  btn?.addEventListener("click", () => {
+    /*要約を表示する関数*/
+  });
 }
 
 function initListener() {
