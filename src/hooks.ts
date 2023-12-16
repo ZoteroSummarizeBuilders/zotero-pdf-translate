@@ -114,7 +114,7 @@ async function FullTextfromid(id: string) {
       }
     }
   }
-  return fulltext.join(", ");
+  return splitString(fulltext.join(", "), 40);
 }
 
 // ChatGPT の要約結果
