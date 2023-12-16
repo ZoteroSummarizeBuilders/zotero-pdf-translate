@@ -1,4 +1,4 @@
-import { SERVICES, inferLanguage, matchLanguage } from "./config";
+import { SERVICES } from "./config";
 import { getString } from "./locale";
 import { getPref } from "./prefs";
 import { getServiceSecret } from "./secret";
@@ -96,15 +96,6 @@ export class TranslateTaskRunner {
   }
 
   public async run(data: TranslateTask) {
-    // 翻訳元言語がわからないとき，autoDetectLanguage関数を用いて自動検出する
-    if (!data.langfrom || !data.langto) {
-      const { fromLanguage, toLanguage } = autoDetectLanguage(
-        Zotero.Items.get(data.itemId || -1),
-      );
-      data.langfrom = data.langfrom || fromLanguage;
-      data.langto = data.langto || toLanguage;
-    }
-
     // 呼び出し元のIDがない場合，設定ファイルからaddonIDを使用する
     data.callerID = data.callerID || config.addonID;
 
@@ -208,79 +199,8 @@ export function addTranslateTask(
   return newTask;
 }
 
-export function addTranslateAnnotationTask(
-  libraryID: number,
-  itemKey: string,
-): TranslateTask | undefined;
-export function addTranslateAnnotationTask(
-  itemID: number,
-): TranslateTask | undefined;
-export function addTranslateAnnotationTask(
-  itemIDOrLibraryID: number,
-  itemKey?: string,
-) {
-  let item: Zotero.Item | false;
-  if (itemKey) {
-    item = Zotero.Items.getByLibraryAndKey(
-      itemIDOrLibraryID,
-      itemKey,
-    ) as Zotero.Item;
-  } else {
-    item = Zotero.Items.get(itemIDOrLibraryID);
-  }
-  if (!item) {
-    return;
-  }
-  return addTranslateTask(item.annotationText, item.id, "annotation");
-}
-
-export function addTranslateTitleTask(
-  itemId: number,
-  skipIfExists: boolean = false,
-) {
-  const item = Zotero.Items.get(itemId);
-  if (
-    item?.isRegularItem() &&
-    !(
-      skipIfExists &&
-      ztoolkit.ExtraField.getExtraField(item, "titleTranslation")
-    )
-  ) {
-    return addTranslateTask(item.getField("title") as string, item.id, "title");
-  }
-}
-
-export function addTranslateAbstractTask(
-  itemId: number,
-  skipIfExists: boolean = false,
-) {
-  const item = Zotero.Items.get(itemId);
-  if (
-    item?.isRegularItem() &&
-    !(
-      skipIfExists &&
-      ztoolkit.ExtraField.getExtraField(item, "abstractTranslation")
-    )
-  ) {
-    return addTranslateTask(
-      item.getField("abstractNote") as string,
-      item.id,
-      "abstract",
-    );
-  }
-}
-
 function setDefaultService(task: TranslateTask) {
-  // Use wordService(dictSource) for single word translation
-  if (
-    getPref("enableDict") &&
-    task.raw.trim().split(/[^a-z,A-Z]+/).length == 1
-  ) {
-    task.service = getPref("dictSource") as string;
-    task.candidateServices.push(getPref("translateSource") as string);
-  } else {
-    task.service = getPref("translateSource") as string;
-  }
+  task.service = getPref("translateSource") as string;
 
   // In case service is still empty
   task.service = task.service || SERVICES[0].id;
@@ -320,59 +240,4 @@ export function getLastTranslateTask<
     i--;
   }
   return undefined;
-}
-
-export function putTranslateTaskAtHead(taskId: string) {
-  const queue = addon.data.translate.queue;
-  const idx = queue.findIndex((task) => task.id === taskId);
-  if (idx >= 0) {
-    const targetTask = queue.splice(idx, 1)[0];
-    queue.push(targetTask);
-    return true;
-  }
-  return false;
-}
-
-export function autoDetectLanguage(item: Zotero.Item) {
-  const topItem = Zotero.Items.getTopLevel([item])[0];
-  let fromLanguage = getPref("sourceLanguage") as string;
-  const toLanguage = getPref("targetLanguage") as string;
-  // Use cached source language
-  if (addon.data.translate.cachedSourceLanguage[item.id]) {
-    return {
-      fromLanguage: addon.data.translate.cachedSourceLanguage[item.id],
-      toLanguage,
-    };
-  }
-  if (getPref("enableAutoDetectLanguage")) {
-    if (topItem) {
-      const itemLanguage =
-        // Respect language field
-        matchLanguage((topItem.getField("language") as string) || "").code;
-      if (itemLanguage) {
-        fromLanguage = itemLanguage;
-      } else {
-        // Respect AbstractNote or Title inferred language
-        const inferredLanguage = inferLanguage(
-          (topItem.getField("abstractNote") as string) ||
-            (topItem.getField("title") as string) ||
-            "",
-        ).code;
-        if (inferredLanguage) {
-          // Update language field so that it can be used in the future
-          fromLanguage = inferredLanguage;
-          topItem.setField("language", fromLanguage);
-        }
-      }
-      if (itemLanguage === toLanguage || itemLanguage === fromLanguage) {
-        // If the item language is the same as the target/source language, do nothing
-      } else if (itemLanguage) {
-        fromLanguage = itemLanguage;
-      }
-    }
-  }
-  return {
-    fromLanguage,
-    toLanguage,
-  };
 }
