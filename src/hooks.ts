@@ -25,6 +25,7 @@ function registerLibraryTabPanel() {
     "要約",
     (panel: XUL.Element, win: Window) => {
       const elem = ztoolkit.UI.createElement(win.document, "vbox", {
+        styles: { maxWidth: "300px" },
         children: [
           {
             tag: "h2",
@@ -36,7 +37,13 @@ function registerLibraryTabPanel() {
             id: "summary-button",
             tag: "button",
             properties: {
-              innerText: "要約",
+              innerText: "要約を生成",
+            },
+            styles: {
+              width: "300px",
+              // height: "50px",
+              minWidth: "300px",
+              maxWidth: "300px",
             },
           },
           {
@@ -49,6 +56,19 @@ function registerLibraryTabPanel() {
         ],
       });
       panel.append(elem);
+      // const elem2 = ztoolkit.UI.createElement(win.document, "vbox",{
+      //   styles:{maxWidth: "300px"},
+      //   children: [
+      //     {
+      //       id: "generated-summary",
+      //       tag: "div",
+      //       properties: {
+      //         innerText: "ここに要約文が出力されます。",
+      //       },
+      //     },
+      //   ],
+      // });
+      // panel.append(elem2);
     },
     {
       targetIndex: 1,
@@ -88,7 +108,7 @@ function splitString(string: string, length: number) {
 }
 
 // idからpdf文書の全文の取得
-async function FullTextfromid(id: string) {
+async function FullTextfromid(id: string): Promise<string> {
   // window.alert("in fulltext id is "+id);
   // const item = ZoteroPane.getSelectedItems()[0];
   const item = Zotero.Items.get(id);
@@ -103,7 +123,9 @@ async function FullTextfromid(id: string) {
         attachment.attachmentContentType == "text/html"
       ) {
         const text = await attachment.attachmentText;
-        fulltext.push(text);
+        if (text.length > 0) {
+          fulltext.push(text);
+        }
         // window.alert("pdf3"+ text);
         // return fulltext.toString();
       }
@@ -131,6 +153,42 @@ async function GPT_summary(item: Zotero.Item) {
   }
 
   await addon.hooks.onTranslate(task);
+  // window.alert("task object: " + JSON.stringify(task, null, 2));
+  // window.alert("addon: " + JSON.stringify(addon.data.translate, null, 2));
+
+  window.alert("clearly success!!--->>>" + task.result);
+  return task.result || "Not yet. I'm sorry!";
+}
+
+// ChatGPT の要約結果
+function GPT_summaryfromtext(fulltext: string) {
+  // const title = item.getField("title");
+  // addon.data.translate.selectedText = "I love bananas. It is nice!!";
+  addon.data.translate.selectedText = fulltext;
+  if (!addon.data.translate.selectedText) {
+    window.alert("selectedText is empty.");
+  }
+
+  let task = getLastTranslateTask();
+
+  if (!task) {
+    task = addTranslateTask(addon.data.translate.selectedText);
+
+    // window.alert(
+    //   "addTranslateTask-->" +
+    //     task +
+    //     "\ntask result--->" +
+    //     task.result +
+    //     "\nselectedText-->" +
+    //     addon.data.translate.selectedText,
+    // );
+
+    if (!task) {
+      return "Not yet. I'm sorry!";
+    }
+  }
+
+  addon.hooks.onTranslate(task, { noDisplay: true });
   // window.alert("task object: " + JSON.stringify(task, null, 2));
   // window.alert("addon: " + JSON.stringify(addon.data.translate, null, 2));
 
@@ -182,6 +240,29 @@ async function onLoadingPdf(id: string) {
   for (const tag of GPT_tag()) {
     item.addTag(tag);
   }
+}
+
+// ここに「要約ボタンをおしたときに実行される関数」を記述する
+async function clicksummarizebtn(id: string) {
+  const item = Zotero.Items.get(id);
+  // const text = await FullTextfromid(id);
+  if (summaries[id] == undefined) {
+    // const text = await FullTextfromid(id);
+    const abstract = item.getField("abstractNote");
+    // summaries[id] = await GPT_summaryfromtext(text);
+    // summaries[id] = text;
+    summaries[id] = abstract.toString();
+    // summaries[id] = "hogehoge";
+  }
+  const summary = window.document.getElementById("generated-summary");
+  if (summary != null) {
+    summary.innerHTML = summaries[id];
+  }
+
+  item.addTag("1");
+  // for (const tag of GPT_tag()) {
+  //   item.addTag(tag);
+  // }
 }
 
 // ここに「論文を選択したときに実行される関数」を記述する
@@ -292,7 +373,9 @@ async function onMainWindowLoad(win: Window): Promise<void> {
 
   const btn = document.getElementById("summary-button");
   btn?.addEventListener("click", () => {
-    /*要約を表示する関数*/
+    const item = ZoteroPane.getSelectedItems()[0];
+    // window.alert("btton is pushed");
+    clicksummarizebtn(item.id.toString());
   });
 }
 
