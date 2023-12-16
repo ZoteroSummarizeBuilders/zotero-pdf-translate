@@ -3,11 +3,6 @@ import {
   registerPrefsScripts,
   registerPrefsWindow,
 } from "./modules/preferenceWindow";
-import {
-  ReaderPopupEvent,
-  buildReaderPopup,
-  updateReaderPopup,
-} from "./modules/popup";
 // import { registerNotify } from "./modules/notify";
 import { registerReaderInitializer } from "./modules/reader";
 import { getPref, setPref } from "./utils/prefs";
@@ -80,17 +75,32 @@ const FullText = async () => {
 };
 
 // ChatGPT の要約結果
-function GPT_summary() {
-  const task = getLastTranslateTask();
-  let summary_text: string; // `summary_text`をifブロックの外で定義
+function GPT_summary(item: Zotero.Item) {
+  // const item = ZoteroPane.getSelectedItems()[0];
+  var abstract = item.getField("abstractNote");
+  // addon.data.translate.selectedText = "I love bananas. It is nice!!";
+  addon.data.translate.selectedText = abstract.toString();
+  if (!addon.data.translate.selectedText) {
+    window.alert("selectedText is empty.");
+  }
+  let task = getLastTranslateTask();
 
   if (!task) {
-    summary_text = "Not Yet. I'm sorry///."; // 値を割り当てる
-  } else {
-    summary_text = task.result; // 値を割り当てる
+    task = addTranslateTask(addon.data.translate.selectedText);
+
+    window.alert(
+      "addTranslateTask-->" +
+        task +
+        "\nselectedText-->" +
+        addon.data.translate.selectedText,
+    );
+
+    if (!task) {
+      return "Not yet. I'm sorry!";
+    }
   }
 
-  return summary_text + Math.random(); // `summary_text`はここで利用可能
+  return task.result || "Not yet. I'm sorry!";
 }
 
 // ChatGPT のタグ付け結果の配列
@@ -111,6 +121,10 @@ function onLoadingPdf(id: string) {
     // );
   }
 
+  summaries[item.id] = GPT_summary(item);
+
+
+
   const summary = window.document.getElementById("generated-summary");
   if (summary != null) {
     summary.innerHTML = summaries[id];
@@ -129,9 +143,6 @@ function onLoadingPdf(id: string) {
   }
 }
 
-function Summaryshow(event: ReaderPopupEvent) {
-  // onLoadingPdf();
-}
 
 // ここに「論文を選択したときに実行される関数」を記述する
 function onSelectItem() {
@@ -342,26 +353,6 @@ async function onTranslateInBatch(
   }
 }
 
-function onReaderPopupShow(event: ReaderPopupEvent) {
-  const selection = addon.data.translate.selectedText;
-  const task = getLastTranslateTask();
-  if (task?.raw === selection) {
-    buildReaderPopup(event);
-    addon.hooks.onReaderPopupRefresh();
-    return;
-  }
-  addTranslateTask(selection, event.reader.itemID);
-  buildReaderPopup(event);
-  addon.hooks.onReaderPopupRefresh();
-  if (getPref("enableAuto")) {
-    addon.hooks.onTranslate();
-  }
-}
-
-function onReaderPopupRefresh() {
-  updateReaderPopup();
-}
-
 function onSwitchTitleColumnDisplay() {
   setPref(
     "titleColumnMode",
@@ -376,7 +367,6 @@ function onSwitchTitleColumnDisplay() {
 
 export default {
   onStartup,
-  Summaryshow,
   onMainWindowLoad,
   onMainWindowUnload,
   onShutdown,
@@ -385,7 +375,5 @@ export default {
   onShortcuts,
   onTranslate,
   onTranslateInBatch,
-  onReaderPopupShow,
-  onReaderPopupRefresh,
   onSwitchTitleColumnDisplay,
 };
