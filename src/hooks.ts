@@ -136,7 +136,7 @@ function onLoadingPdf(id: string) {
     summary.innerHTML = summaries[id];
   }
   for (const tag of GPT_tag()) {
-    //item.addTag(tag);
+    item.addTag(tag);
   }
 }
 

@@ -1,15 +1,15 @@
 {
   "name": "zotero-pdf-translate",
-  "version": "1.1.0-23",
-  "description": "Translate PDF, EPub, webpage, metadata, annotations, notes to the target language. Support 20+ translate services.",
+  "version": "0.0.0",
+  "description": "Summarize your PDF files with chatGPT.",
   "config": {
-    "addonName": "Translate for Zotero",
-    "addonID": "zoteropdftranslate@euclpts.com",
-    "addonRef": "zoteropdftranslate",
-    "prefsPrefix": "extensions.zotero.ZoteroPDFTranslate",
-    "addonInstance": "PDFTranslate",
-    "releasepage": "https://github.com/windingwind/zotero-pdf-translate/releases/latest/download/zotero-pdf-translate.xpi",
-    "updaterdf": "https://raw.githubusercontent.com/windingwind/zotero-pdf-translate/main/update.json"
+    "addonName": "Summarize for Zotero",
+    "addonID": "zoterosummarize@titech.jp",
+    "addonRef": "zoteropdfsummarize",
+    "prefsPrefix": "extensions.zotero.zoteropdfsummarize",
+    "addonInstance": "PDFSummarize",
+    "releasepage": "https://github.com/ZoteroSummarizeBuilders/zotero-summarize.git",
+    "updaterdf": "https://github.com/ZoteroSummarizeBuilders/zotero-summarize.git"
   },
   "main": "src/index.ts",
   "scripts": {
@@ -33,14 +33,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/windingwind/zotero-pdf-translate.git"
+    "url": "git+https://github.com/ZoteroSummarizeBuilders/zotero-summarize.git"
   },
-  "author": "windingwind",
+  "author": "ZsumB",
   "license": "AGPL-3.0-or-later",
   "bugs": {
-    "url": "https://github.com/windingwind/zotero-pdf-translate/issues"
+    "url": "https://github.com/ZoteroSummarizeBuilders/zotero-summarize.git"
   },
-  "homepage": "https://github.com/windingwind/zotero-pdf-translate#readme",
+  "homepage": "https://github.com/ZoteroSummarizeBuilders/zotero-summarize.git",
   "dependencies": {
     "franc": "^6.1.0",
     "iso639-js": "^1.1.3",
