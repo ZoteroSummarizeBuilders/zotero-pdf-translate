@@ -8,7 +8,7 @@ import {
   buildReaderPopup,
   updateReaderPopup,
 } from "./modules/popup";
-import { registerNotify } from "./modules/notify";
+// import { registerNotify } from "./modules/notify";
 import { registerReaderInitializer } from "./modules/reader";
 import { getPref, setPref } from "./utils/prefs";
 import {
@@ -24,6 +24,7 @@ import { config } from "../package.json";
 import { registerPrompt } from "./modules/prompt";
 import { createZToolkit } from "./utils/ztoolkit";
 import { randomInt } from "crypto";
+
 
 // 要約結果の辞書型配列
 // * idを指定するとその論文の要約を返す
@@ -133,8 +134,40 @@ function onLoadingPdf() {
   }
 }
 
-// ここに「論文を選択したときに実行される関数」を記述する
-function onSelectedItem() {}
+function registerNotify() {
+  const callback = {
+    notify: async (
+      event: string,
+      type: string,
+      ids: number[] | string[],
+      extraData: { [key: string]: any },
+    ) => {
+      // ztoolkit.log({ type });
+      if (type == "item") {
+        for (const id of ids) {
+          //ここに実行したい関数を追加
+          onLoadingPdf();
+        }
+      }
+      if (!addon?.data.alive) {
+        unregisterNotify(notifyID);
+        return;
+      }
+      addon.hooks.onNotify(event, type, ids, extraData);
+    },
+  };
+
+  // Register the callback in Zotero as an item observer
+  const notifyID = Zotero.Notifier.registerObserver(callback, [
+    "tab",
+    "item",
+    "file",
+  ]);
+}
+
+function unregisterNotify(notifyID: string) {
+  Zotero.Notifier.unregisterObserver(notifyID);
+}
 
 async function onStartup() {
   await Promise.all([
@@ -148,7 +181,8 @@ async function onStartup() {
 
   registerReaderInitializer();
 
-  registerNotify(["item"]);
+  // registerNotify(["item"]);
+  registerNotify();
   await onMainWindowLoad(window);
 }
 
@@ -175,7 +209,7 @@ async function onMainWindowLoad(win: Window): Promise<void> {
   registerPrefsWindow();
   registerPrompt();
   registerLibraryTabPanel();
-  onLoadingPdf();
+  // onLoadingPdf();
 }
 
 async function onMainWindowUnload(win: Window): Promise<void> {
