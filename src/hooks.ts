@@ -25,7 +25,6 @@ import { registerPrompt } from "./modules/prompt";
 import { createZToolkit } from "./utils/ztoolkit";
 import { randomInt } from "crypto";
 
-
 // 要約結果の辞書型配列
 // * idを指定するとその論文の要約を返す
 const summaries: { [id: number]: string } = {};
@@ -106,12 +105,9 @@ function GPT_tag() {
 // ここに「pdfが読み込まれた時に実行される関数」を記述する
 function onLoadingPdf() {
   const item = ZoteroPane.getSelectedItems()[0];
-
-  window.alert("要約とタグの自動作成を開始");
-
-  if (item == undefined) {
-    window.alert("論文が選択されていません。");
-  }
+  // if (item == undefined) {
+  //   window.alert("論文が選択されていません。");
+  // }
   summaries[item.id] = GPT_summary();
 
   window.alert(
@@ -131,25 +127,31 @@ function onLoadingPdf() {
   for (const tag of GPT_tag()) {
     item.addTag(tag);
 
-    window.alert(
-      "論文: " +
-        item.getDisplayTitle() +
-        "\nid: " +
-        item.id +
-        " に\nタグ: " +
-        tag +
-        " を追加",
-    );
+    // window.alert(
+    //   "論文: " +
+    //     item.getDisplayTitle() +
+    //     "\nid: " +
+    //     item.id +
+    //     " に\nタグ: " +
+    //     tag +
+    //     " を追加",
+    // );
   }
 }
-
 
 function Summaryshow(event: ReaderPopupEvent) {
   onLoadingPdf();
 }
 
 // ここに「論文を選択したときに実行される関数」を記述する
-function onSelectedItem() {}
+function onSelectItem() {
+  const item = ZoteroPane.getSelectedItems()[0];
+  const summary = window.document.getElementById("generated-summary");
+  if (item && summary) {
+    summary.innerText = summaries[item.id];
+  }
+  window.alert("ID: " + item.id + " のpdfが選択されました");
+}
 
 function registerNotify() {
   const callback = {
