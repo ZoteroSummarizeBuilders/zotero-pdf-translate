@@ -83,21 +83,20 @@ function GPT_summary(item: Zotero.Item) {
   if (!addon.data.translate.selectedText) {
     window.alert("selectedText is empty.");
   }
-  window.alert("1st");
+
   let task = getLastTranslateTask();
-  window.alert("2nd");
 
   if (!task) {
     task = addTranslateTask(addon.data.translate.selectedText);
 
-    window.alert(
-      "addTranslateTask-->" +
-        task +
-        "\ntask result--->" +
-        task.result +
-        "\nselectedText-->" +
-        addon.data.translate.selectedText,
-    );
+    // window.alert(
+    //   "addTranslateTask-->" +
+    //     task +
+    //     "\ntask result--->" +
+    //     task.result +
+    //     "\nselectedText-->" +
+    //     addon.data.translate.selectedText,
+    // );
 
     if (!task) {
       return "Not yet. I'm sorry!";
@@ -105,8 +104,8 @@ function GPT_summary(item: Zotero.Item) {
   }
 
   addon.hooks.onTranslate(task, { noDisplay: true });
-  window.alert("task object: " + JSON.stringify(task, null, 2));
-  window.alert("addon: " + JSON.stringify(addon.data.translate, null, 2));
+  // window.alert("task object: " + JSON.stringify(task, null, 2));
+  // window.alert("addon: " + JSON.stringify(addon.data.translate, null, 2));
 
   window.alert("clearly success!!--->>>" + task.result);
   return task.result || "Not yet. I'm sorry!";
