@@ -34,18 +34,8 @@ async function translate(
      * If not set, use the default value.
      */
     itemID?: number;
-    /**
-     * From language
-     *
-     * If not set, generate at task runtime.
-     */
-    langfrom?: string;
-    /**
-     * To language.
-     *
-     * If not set, generate at task runtime.
-     */
-    langto?: string;
+
+    text?: string;
   },
 ): Promise<TranslateTask>;
 /**
@@ -117,8 +107,6 @@ async function translate(
     status: "waiting",
     extraTasks: [],
     silent: true,
-    langfrom: isDeprecatedCall ? undefined : (serviceOrOptions as any).langfrom,
-    langto: isDeprecatedCall ? undefined : (serviceOrOptions as any).langto,
     callerID: isDeprecatedCall
       ? "unknown caller with translate for zotero api"
       : (serviceOrOptions as any).pluginID,

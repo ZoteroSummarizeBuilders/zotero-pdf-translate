@@ -1,5 +1,5 @@
 {
-  "name": "zotero-pdf-translate",
+  "name": "zotero-summarize",
   "version": "0.0.0",
   "description": "Summarize your PDF files with chatGPT.",
   "config": {
