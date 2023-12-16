@@ -75,6 +75,36 @@ const FullText = async () => {
   }
 };
 
+// idからpdf文書の全文の取得
+async function FullTextfromid(id: string) {
+  // window.alert("in fulltext id is "+id);
+  // const item = ZoteroPane.getSelectedItems()[0];
+  const item = Zotero.Items.get(id);
+  const fulltext: string[] = [];
+  if (item.isRegularItem()) {
+    // not an attachment already
+    // window.alert("regularitem is "+item.isRegularItem());
+    const attachmentIDs = item.getAttachments();
+    // window.alert("attachmentid is "+attachmentIDs);
+    for (const id_text of attachmentIDs) {
+      // window.alert("id_text"+id_text);
+      const attachment = Zotero.Items.get(id_text);
+      if (
+        attachment.attachmentContentType == "application/pdf" ||
+        attachment.attachmentContentType == "text/html"
+      ) {
+        // window.alert("pdf");
+        const text = await attachment.attachmentText;
+        // window.alert("pdf2");
+        fulltext.push(text);
+        // window.alert("pdf3"+ text);
+        // return fulltext.toString();
+      }
+    }
+  }
+  return fulltext.join(", ");
+}
+
 // ChatGPT の要約結果
 function GPT_summary(item: Zotero.Item) {
   const title = item.getField("title");
@@ -121,12 +151,21 @@ function GPT_tag() {
 }
 
 // ここに「pdfが読み込まれた時に実行される関数」を記述する
-function onLoadingPdf(id: string) {
+async function onLoadingPdf(id: string) {
   const item = ZoteroPane.getSelectedItems()[0];
   // const item = ZoteroPane.item
   // window.alert(item.id);
   if (summaries[id] == undefined) {
-    summaries[id] = GPT_summary(item);
+    const text = await FullTextfromid(id);
+    if (text.length > 0) {
+      window.alert("fulltext is " + text);
+    } else {
+      window.alert("fulltext is null");
+    }
+
+    // summaries[id] = GPT_summary(item);
+
+    // window.alert("fulltext return is "+FullTextfromid(id));
     // window.alert(
     //   "id:" + id + "の論文に要約を追加"
     // );
@@ -168,6 +207,7 @@ function registerNotify() {
       }
       if (!addon?.data.alive) {
         unregisterNotify(notifyID);
+        window.alert("in unregistard notify ");
         return;
       }
       addon.hooks.onNotify(event, type, ids, extraData);
@@ -267,14 +307,14 @@ function onNotify(
     if (annotationItems.length === 0) {
       return;
     }
-    if (getPref("enableComment")) {
-      addon.hooks.onTranslateInBatch(
-        annotationItems
-          .map((item) => addTranslateAnnotationTask(item.id))
-          .filter((task) => task) as TranslateTask[],
-        { noDisplay: true },
-      );
-    }
+    // if (getPref("enableComment")) {
+    //   addon.hooks.onTranslateInBatch(
+    //     annotationItems
+    //       .map((item) => addTranslateAnnotationTask(item.id))
+    //       .filter((task) => task) as TranslateTask[],
+    //     { noDisplay: true },
+    //   );
+    // }
   } else {
     return;
   }
