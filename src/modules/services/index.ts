@@ -91,61 +91,7 @@ export class TranslationServices {
     const success = task.status === "success";
     const item = Zotero.Items.get(task.itemId!);
     // Data storage for corresponding types
-    if (success) {
-      switch (task.type) {
-        case "annotation":
-          {
-            if (item) {
-              const savePosition = getPref("annotationTranslationPosition") as
-                | "comment"
-                | "body";
-              const currentText = (
-                (savePosition === "comment"
-                  ? item.annotationComment
-                  : item.annotationText) || ""
-              ).replace(regex, "");
-              let text = `${
-                currentText[currentText.length - 1] === "\n" ? "" : "\n"
-              }${splitChar}${task.result}${splitChar}\n`;
-              text = splitChar === "" ? text : `${currentText}${text}`;
-              item[
-                savePosition === "comment"
-                  ? "annotationComment"
-                  : "annotationText"
-              ] = text;
-              item.saveTx();
-            }
-          }
-          break;
-        case "title":
-          {
-            if (item) {
-              ztoolkit.ExtraField.setExtraField(
-                item,
-                "titleTranslation",
-                task.result,
-              );
-              item.saveTx();
-            }
-          }
-          break;
-        case "abstract":
-          {
-            if (item) {
-              ztoolkit.ExtraField.setExtraField(
-                item,
-                "abstractTranslation",
-                // A dirty workaround to make it collapsible on Zotero 6
-                ztoolkit.isZotero7() ? task.result : " " + task.result,
-              );
-              item.saveTx();
-            }
-          }
-          break;
-        default:
-          break;
-      }
-    }
+
     return success;
   }
 }

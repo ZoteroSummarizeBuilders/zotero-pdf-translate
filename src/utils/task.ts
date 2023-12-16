@@ -199,79 +199,8 @@ export function addTranslateTask(
   return newTask;
 }
 
-export function addTranslateAnnotationTask(
-  libraryID: number,
-  itemKey: string,
-): TranslateTask | undefined;
-export function addTranslateAnnotationTask(
-  itemID: number,
-): TranslateTask | undefined;
-export function addTranslateAnnotationTask(
-  itemIDOrLibraryID: number,
-  itemKey?: string,
-) {
-  let item: Zotero.Item | false;
-  if (itemKey) {
-    item = Zotero.Items.getByLibraryAndKey(
-      itemIDOrLibraryID,
-      itemKey,
-    ) as Zotero.Item;
-  } else {
-    item = Zotero.Items.get(itemIDOrLibraryID);
-  }
-  if (!item) {
-    return;
-  }
-  return addTranslateTask(item.annotationText, item.id, "annotation");
-}
-
-export function addTranslateTitleTask(
-  itemId: number,
-  skipIfExists: boolean = false,
-) {
-  const item = Zotero.Items.get(itemId);
-  if (
-    item?.isRegularItem() &&
-    !(
-      skipIfExists &&
-      ztoolkit.ExtraField.getExtraField(item, "titleTranslation")
-    )
-  ) {
-    return addTranslateTask(item.getField("title") as string, item.id, "title");
-  }
-}
-
-export function addTranslateAbstractTask(
-  itemId: number,
-  skipIfExists: boolean = false,
-) {
-  const item = Zotero.Items.get(itemId);
-  if (
-    item?.isRegularItem() &&
-    !(
-      skipIfExists &&
-      ztoolkit.ExtraField.getExtraField(item, "abstractTranslation")
-    )
-  ) {
-    return addTranslateTask(
-      item.getField("abstractNote") as string,
-      item.id,
-      "abstract",
-    );
-  }
-}
-
 function setDefaultService(task: TranslateTask) {
-  // Use wordService(dictSource) for single word translation
-  if (
-    getPref("enableDict") &&
-    task.raw.trim().split(/[^a-z,A-Z]+/).length == 1
-  ) {
-    task.service = getPref("dictSource") as string;
-    task.candidateServices.push(getPref("translateSource") as string);
-  } else {
-    task.service = getPref("translateSource") as string;
-  }
+  task.service = getPref("translateSource") as string;
 
   // In case service is still empty
   task.service = task.service || SERVICES[0].id;
@@ -311,15 +240,4 @@ export function getLastTranslateTask<
     i--;
   }
   return undefined;
-}
-
-export function putTranslateTaskAtHead(taskId: string) {
-  const queue = addon.data.translate.queue;
-  const idx = queue.findIndex((task) => task.id === taskId);
-  if (idx >= 0) {
-    const targetTask = queue.splice(idx, 1)[0];
-    queue.push(targetTask);
-    return true;
-  }
-  return false;
 }

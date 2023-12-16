@@ -6,9 +6,7 @@ import {
 // import { registerNotify } from "./modules/notify";
 import { getPref, setPref } from "./utils/prefs";
 import {
-  addTranslateAnnotationTask,
   addTranslateTask,
-  addTranslateTitleTask,
   getLastTranslateTask,
   TranslateTask,
 } from "./utils/task";
@@ -337,31 +335,6 @@ function onPrefsLoad(event: Event) {
   registerPrefsScripts((event.target as any).ownerGlobal);
 }
 
-function onShortcuts(type: string) {
-  switch (type) {
-    case "library":
-      {
-        addon.hooks.onSwitchTitleColumnDisplay();
-        addon.hooks.onTranslateInBatch(
-          ZoteroPane.getSelectedItems(true)
-            .map((id) => addTranslateTitleTask(id, true))
-            .filter((task) => task) as TranslateTask[],
-          { noDisplay: true },
-        );
-      }
-      break;
-    case "reader":
-      {
-        addon.hooks.onTranslate(undefined, {
-          noCheckZoteroItemLanguage: true,
-        });
-      }
-      break;
-    default:
-      break;
-  }
-}
-
 async function onTranslate(): Promise<void>;
 async function onTranslate(
   options: Parameters<
@@ -421,7 +394,6 @@ export default {
   onShutdown,
   onNotify,
   onPrefsLoad,
-  onShortcuts,
   onTranslate,
   onTranslateInBatch,
   onSwitchTitleColumnDisplay,
