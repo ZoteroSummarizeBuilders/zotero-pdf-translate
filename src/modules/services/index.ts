@@ -61,14 +61,6 @@ export class TranslationServices {
     task.result = "";
     // Display raw
     // Get task runner
-    window.alert("here is before runner.");
-    window.alert("this object: " + JSON.stringify(this, null, 2));
-    window.alert("task object: " + JSON.stringify(task, null, 2));
-    window.alert(
-      "this[task.service] object: " +
-        JSON.stringify(this[task.service], null, 2),
-    );
-    window.alert("TranslateTaskRunner : " + TranslateTaskRunner);
     const runner = this[task.service] as TranslateTaskRunner;
     if (!runner) {
       task.result = `${task.service} is not implemented.`;

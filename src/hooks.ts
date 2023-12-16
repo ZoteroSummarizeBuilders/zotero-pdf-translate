@@ -4,7 +4,6 @@ import {
   registerPrefsWindow,
 } from "./modules/preferenceWindow";
 // import { registerNotify } from "./modules/notify";
-import { registerReaderInitializer } from "./modules/reader";
 import { getPref, setPref } from "./utils/prefs";
 import {
   addTranslateAnnotationTask,
@@ -116,7 +115,6 @@ async function GPT_summary(item: Zotero.Item) {
   }
 
   let task = getLastTranslateTask();
-  window.alert("step1");
   if (!task) {
     task = addTranslateTask(addon.data.translate.selectedText);
 
@@ -126,7 +124,7 @@ async function GPT_summary(item: Zotero.Item) {
   }
 
   await addon.hooks.onTranslate(task);
-  window.alert("task object: " + JSON.stringify(task, null, 2));
+  // window.alert("task object: " + JSON.stringify(task, null, 2));
   // window.alert("addon: " + JSON.stringify(addon.data.translate, null, 2));
 
   window.alert("clearly success!!--->>>" + task.result);
@@ -252,8 +250,6 @@ async function onStartup() {
   initLocale();
 
   setDefaultPrefSettings();
-
-  registerReaderInitializer();
 
   // registerNotify(["item"]);
   registerNotify();
