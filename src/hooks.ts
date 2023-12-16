@@ -27,7 +27,7 @@ import { randomInt } from "crypto";
 
 // 要約結果の辞書型配列
 // * idを指定するとその論文の要約を返す
-const summaries: { [id: number]: string } = {};
+const summaries: { [id: string]: string } = {};
 
 function registerLibraryTabPanel() {
   const tabId = ztoolkit.LibraryTabPanel.register(
@@ -103,30 +103,20 @@ function GPT_tag() {
 }
 
 // ここに「pdfが読み込まれた時に実行される関数」を記述する
-function onLoadingPdf() {
-  const item = ZoteroPane.getSelectedItems()[0];
-  // if (item == undefined) {
-  //   window.alert("論文が選択されていません。");
-  // }
-  summaries[item.id] = GPT_summary();
-
-  window.alert(
-    "論文: " +
-      item.getDisplayTitle() +
-      "\nid: " +
-      item.id +
-      " に\n要約: " +
-      summaries[item.id].slice(0, 10) +
-      "... を追加",
-  );
+function onLoadingPdf(id: string) {
+  if (summaries[id] == undefined) {
+    summaries[id] = GPT_summary();
+    // window.alert(
+    //   "id:" + id + "の論文に要約を追加"
+    // );
+  }
 
   const summary = window.document.getElementById("generated-summary");
   if (summary != null) {
-    summary.innerHTML = summaries[item.id];
+    summary.innerHTML = summaries[id];
   }
   for (const tag of GPT_tag()) {
-    item.addTag(tag);
-
+    // item.addTag(tag);
     // window.alert(
     //   "論文: " +
     //     item.getDisplayTitle() +
@@ -140,7 +130,7 @@ function onLoadingPdf() {
 }
 
 function Summaryshow(event: ReaderPopupEvent) {
-  onLoadingPdf();
+  // onLoadingPdf();
 }
 
 // ここに「論文を選択したときに実行される関数」を記述する
@@ -149,8 +139,9 @@ function onSelectItem() {
   const summary = window.document.getElementById("generated-summary");
   if (item && summary) {
     summary.innerText = summaries[item.id];
+    // window.alert(summary.innerText);
   }
-  window.alert("ID: " + item.id + " のpdfが選択されました");
+  // window.alert("ID: " + item.id + " のpdfが選択されました");
 }
 
 function registerNotify() {
@@ -165,7 +156,7 @@ function registerNotify() {
       if (type == "item") {
         for (const id of ids) {
           //ここに実行したい関数を追加
-          onLoadingPdf();
+          onLoadingPdf(id.toString());
         }
       }
       if (!addon?.data.alive) {
@@ -175,6 +166,10 @@ function registerNotify() {
       addon.hooks.onNotify(event, type, ids, extraData);
     },
   };
+
+  function onPreview() {
+    //window.alert()
+  }
 
   // Register the callback in Zotero as an item observer
   const notifyID = Zotero.Notifier.registerObserver(callback, [
@@ -229,6 +224,12 @@ async function onMainWindowLoad(win: Window): Promise<void> {
   registerPrompt();
   registerLibraryTabPanel();
   // onLoadingPdf();
+
+  initListener();
+}
+
+function initListener() {
+  window.addEventListener("mousedown", onSelectItem);
 }
 
 async function onMainWindowUnload(win: Window): Promise<void> {
