@@ -18,6 +18,7 @@ import Addon from "./addon";
 import { config } from "../package.json";
 import { registerPrompt } from "./modules/prompt";
 import { createZToolkit } from "./utils/ztoolkit";
+import { chatGPT } from "./modules/services/gpt";
 import { randomInt } from "crypto";
 
 // 要約結果の辞書型配列
@@ -76,13 +77,15 @@ const FullText = async () => {
 
 // ChatGPT の要約結果
 function GPT_summary(item: Zotero.Item) {
-  const abstract = item.getField("abstractNote");
+  const title = item.getField("title");
   // addon.data.translate.selectedText = "I love bananas. It is nice!!";
-  addon.data.translate.selectedText = abstract.toString();
+  addon.data.translate.selectedText = title.toString();
   if (!addon.data.translate.selectedText) {
     window.alert("selectedText is empty.");
   }
+  window.alert("1st");
   let task = getLastTranslateTask();
+  window.alert("2nd");
 
   if (!task) {
     task = addTranslateTask(addon.data.translate.selectedText);
@@ -90,6 +93,8 @@ function GPT_summary(item: Zotero.Item) {
     window.alert(
       "addTranslateTask-->" +
         task +
+        "\ntask result--->" +
+        task.result +
         "\nselectedText-->" +
         addon.data.translate.selectedText,
     );
@@ -99,6 +104,11 @@ function GPT_summary(item: Zotero.Item) {
     }
   }
 
+  addon.hooks.onTranslate(task, { noDisplay: true });
+  window.alert("task object: " + JSON.stringify(task, null, 2));
+  window.alert("addon: " + JSON.stringify(addon.data.translate, null, 2));
+
+  window.alert("clearly success!!--->>>" + task.result);
   return task.result || "Not yet. I'm sorry!";
 }
 
