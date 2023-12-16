@@ -14,8 +14,6 @@ export function registerReaderInitializer() {
       // addon.data.translate.selectedText = "I love bananas. It is nice!!";
       addon.data.translate.selectedText = abstract.toString();
       ////////////////////////////////////////////////////////////////////
-      addon.hooks.onReaderPopupShow(event);
-      addon.hooks.Summaryshow(event);
     },
     config.addonID,
   );

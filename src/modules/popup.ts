@@ -251,9 +251,6 @@ export function buildReaderPopup(event: ReaderPopupEvent) {
                 }
                 const task = addTranslateTask(
                   addon.data.translate.selectedText,
-                  ////////////////////////////////////////////////////////////////////
-                  // "I love banana!!!",
-                  ////////////////////////////////////////////////////////////////////
                   reader.itemID,
                   "text",
                 );

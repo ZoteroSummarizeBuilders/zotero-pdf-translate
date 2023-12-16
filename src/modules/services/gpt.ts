@@ -74,7 +74,6 @@ const gptTranslate = async function (
         preLength = e.target.response.length;
 
         if (data.type === "text") {
-          addon.hooks.onReaderPopupRefresh();
         }
       };
     },

@@ -60,9 +60,6 @@ export class TranslationServices {
     task.raw = task.raw.replace(regex, "");
     task.result = "";
     // Display raw
-    if (!options.noDisplay) {
-      addon.hooks.onReaderPopupRefresh();
-    }
     // Get task runner
     const runner = this[task.service] as TranslateTaskRunner;
     if (!runner) {
@@ -90,9 +87,6 @@ export class TranslationServices {
       return await this.runTranslationTask(task, options);
     } else {
       // Display result
-      if (!options.noDisplay) {
-        addon.hooks.onReaderPopupRefresh();
-      }
     }
     const success = task.status === "success";
     const item = Zotero.Items.get(task.itemId!);

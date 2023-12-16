@@ -379,12 +379,8 @@ function onPrefsEvents(type: string, fromElement: boolean = true) {
     case "setTargetLanguage":
       break;
     case "updateFontSize":
-      addon.hooks.onReaderPopupRefresh();
-
       break;
     case "updatelineHeight":
-      addon.hooks.onReaderPopupRefresh();
-
       break;
     default:
       return;
