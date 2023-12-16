@@ -15,7 +15,6 @@ import {
 import { setDefaultPrefSettings } from "./modules/defaultPrefs";
 import Addon from "./addon";
 import { config } from "../package.json";
-import { registerPrompt } from "./modules/prompt";
 import { createZToolkit } from "./utils/ztoolkit";
 import { randomInt } from "crypto";
 
@@ -278,7 +277,6 @@ async function onMainWindowLoad(win: Window): Promise<void> {
   // Create ztoolkit for every window
   addon.data.ztoolkit = createZToolkit();
   registerPrefsWindow();
-  registerPrompt();
   registerLibraryTabPanel();
   // onLoadingPdf();
 
