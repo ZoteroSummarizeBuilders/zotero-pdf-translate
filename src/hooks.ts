@@ -18,7 +18,6 @@ import Addon from "./addon";
 import { config } from "../package.json";
 import { registerPrompt } from "./modules/prompt";
 import { createZToolkit } from "./utils/ztoolkit";
-import { chatGPT } from "./modules/services/gpt";
 import { randomInt } from "crypto";
 
 // 要約結果の辞書型配列
@@ -108,7 +107,7 @@ async function FullTextfromid(id: string) {
 }
 
 // ChatGPT の要約結果
-function GPT_summary(item: Zotero.Item) {
+async function GPT_summary(item: Zotero.Item) {
   const title = item.getField("title");
   // addon.data.translate.selectedText = "I love bananas. It is nice!!";
   addon.data.translate.selectedText = title.toString();
@@ -117,26 +116,17 @@ function GPT_summary(item: Zotero.Item) {
   }
 
   let task = getLastTranslateTask();
-
+  window.alert("step1");
   if (!task) {
     task = addTranslateTask(addon.data.translate.selectedText);
-
-    // window.alert(
-    //   "addTranslateTask-->" +
-    //     task +
-    //     "\ntask result--->" +
-    //     task.result +
-    //     "\nselectedText-->" +
-    //     addon.data.translate.selectedText,
-    // );
 
     if (!task) {
       return "Not yet. I'm sorry!";
     }
   }
 
-  addon.hooks.onTranslate(task, { noDisplay: true });
-  // window.alert("task object: " + JSON.stringify(task, null, 2));
+  await addon.hooks.onTranslate(task);
+  window.alert("task object: " + JSON.stringify(task, null, 2));
   // window.alert("addon: " + JSON.stringify(addon.data.translate, null, 2));
 
   window.alert("clearly success!!--->>>" + task.result);
@@ -155,23 +145,31 @@ function GPT_tag() {
 // ここに「pdfが読み込まれた時に実行される関数」を記述する
 async function onLoadingPdf(id: string) {
   const item = ZoteroPane.getSelectedItems()[0];
+  if (summaries[id] === undefined) {
+    try {
+      const summaryText = await GPT_summary(item);
+      summaries[id] = summaryText;
+    } catch (error) {
+      const summaryText = "await error.";
+    }
+  }
   // const item = ZoteroPane.item
   // window.alert(item.id);
-  if (summaries[id] == undefined) {
-    // const text = await FullTextfromid(id);
-    // if (text.length > 0) {
-    //   window.alert("fulltext is " + text);
-    // } else {
-    //   window.alert("fulltext is null");
-    // }
+  // if (summaries[id] == undefined) {
+  //   // const text = await FullTextfromid(id);
+  //   // if (text.length > 0) {
+  //   //   window.alert("fulltext is " + text);
+  //   // } else {
+  //   //   window.alert("fulltext is null");
+  //   // }
 
-    summaries[id] = GPT_summary(item);
+  //   summaries[id] = GPT_summary(item);
 
-    // window.alert("fulltext return is "+FullTextfromid(id));
-    // window.alert(
-    //   "id:" + id + "の論文に要約を追加"
-    // );
-  }
+  //   // window.alert("fulltext return is "+FullTextfromid(id));
+  //   // window.alert(
+  //   //   "id:" + id + "の論文に要約を追加"
+  //   // );
+  // }
   const summary = window.document.getElementById("generated-summary");
   if (summary != null) {
     summary.innerHTML = summaries[id];
@@ -258,6 +256,7 @@ async function onStartup() {
   registerReaderInitializer();
 
   // registerNotify(["item"]);
+  registerNotify();
 
   await onMainWindowLoad(window);
 }

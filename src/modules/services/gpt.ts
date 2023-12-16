@@ -15,6 +15,7 @@ const gptTranslate = async function (
     // sourceText: string, // 原文テキスト
     text: string,
   ) {
+    window.alert("transformContent");
     return (
       (getPref(`${prefix}.prompt`) as string)
         // .replaceAll("${langFrom}", langFrom)
