@@ -82,6 +82,16 @@ const FullText = async () => {
   }
 };
 
+// 文字列を指定された文字数ごとに改行して表示
+function splitString(string: string, length: number) {
+  const result = [];
+  while (string.length > 0) {
+    result.push(string.substring(0, length));
+    string = string.substring(length);
+  }
+  return splitString(result.join("<br></br>"), 40);
+}
+
 // idからpdf文書の全文の取得
 async function FullTextfromid(id: string) {
   // window.alert("in fulltext id is "+id);
