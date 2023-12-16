@@ -83,19 +83,14 @@ async function FullTextfromid(id: string) {
   const fulltext: string[] = [];
   if (item.isRegularItem()) {
     // not an attachment already
-    // window.alert("regularitem is "+item.isRegularItem());
     const attachmentIDs = item.getAttachments();
-    // window.alert("attachmentid is "+attachmentIDs);
     for (const id_text of attachmentIDs) {
-      // window.alert("id_text"+id_text);
       const attachment = Zotero.Items.get(id_text);
       if (
         attachment.attachmentContentType == "application/pdf" ||
         attachment.attachmentContentType == "text/html"
       ) {
-        // window.alert("pdf");
         const text = await attachment.attachmentText;
-        // window.alert("pdf2");
         fulltext.push(text);
         // window.alert("pdf3"+ text);
         // return fulltext.toString();
@@ -156,14 +151,14 @@ async function onLoadingPdf(id: string) {
   // const item = ZoteroPane.item
   // window.alert(item.id);
   if (summaries[id] == undefined) {
-    const text = await FullTextfromid(id);
-    if (text.length > 0) {
-      window.alert("fulltext is " + text);
-    } else {
-      window.alert("fulltext is null");
-    }
+    // const text = await FullTextfromid(id);
+    // if (text.length > 0) {
+    //   window.alert("fulltext is " + text);
+    // } else {
+    //   window.alert("fulltext is null");
+    // }
 
-    // summaries[id] = GPT_summary(item);
+    summaries[id] = GPT_summary(item);
 
     // window.alert("fulltext return is "+FullTextfromid(id));
     // window.alert(
@@ -202,7 +197,20 @@ function registerNotify() {
       if (type == "item") {
         for (const id of ids) {
           //ここに実行したい関数を追加
-          onLoadingPdf(id.toString());
+          const item = Zotero.Items.get(id);
+          if (item.isRegularItem()) {
+            // not an attachment already
+            const attachmentIDs = item.getAttachments();
+            for (const id_text of attachmentIDs) {
+              const attachment = Zotero.Items.get(id_text);
+              if (
+                attachment.attachmentContentType == "application/pdf" ||
+                attachment.attachmentContentType == "text/html"
+              ) {
+                onLoadingPdf(id.toString());
+              }
+            }
+          }
         }
       }
       if (!addon?.data.alive) {
