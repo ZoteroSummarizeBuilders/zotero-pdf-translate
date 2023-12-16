@@ -4,10 +4,6 @@ import {
   registerPrefsWindow,
 } from "./modules/preferenceWindow";
 import {
-  registerReaderTabPanel,
-  updateReaderTabPanels,
-} from "./modules/tabpanel";
-import {
   ReaderPopupEvent,
   buildReaderPopup,
   updateReaderPopup,
@@ -24,23 +20,17 @@ import {
 } from "./utils/task";
 import { setDefaultPrefSettings } from "./modules/defaultPrefs";
 import Addon from "./addon";
-import { registerMenu } from "./modules/menu";
-import { registerExtraColumns } from "./modules/itemTree";
-import { registerShortcuts } from "./modules/shortcuts";
 import { config } from "../package.json";
-import { registerItemBoxExtraRows } from "./modules/itemBox";
 import { registerPrompt } from "./modules/prompt";
 import { createZToolkit } from "./utils/ztoolkit";
+import { randomInt } from "crypto";
 
-// 要約結果の配列
-const summaries: string[] = [
-  "これは1番目の要約です。",
-  "これは2番目の要約です。",
-  "これは3番目の要約です。",
-];
+
+// 要約結果の辞書型配列
+// * idを指定するとその論文の要約を返す
+const summaries: { [id: number]: string } = {};
 
 function registerLibraryTabPanel() {
-  window.alert("registerLibraryTabPanel() 開始");
   const tabId = ztoolkit.LibraryTabPanel.register(
     "要約",
     (panel: XUL.Element, win: Window) => {
@@ -67,13 +57,10 @@ function registerLibraryTabPanel() {
       targetIndex: 1,
     },
   );
-
-  window.alert("registerLibraryTabPanel() 完了");
 }
 
 // pdf文書の全文の取得
 const FullText = async () => {
-  window.alert("FullText() 開始");
   const item = ZoteroPane.getSelectedItems()[0];
   const fulltext: string[] = [];
   if (item.isRegularItem()) {
@@ -87,7 +74,6 @@ const FullText = async () => {
       ) {
         const text = await attachment.attachmentText;
         fulltext.push(text);
-        window.alert("FullText() 完了");
         return fulltext.toString();
       }
     }
@@ -96,13 +82,11 @@ const FullText = async () => {
 
 // ChatGPT の要約結果
 function GPT_summary() {
-  window.alert("GPT_summary() 完了");
-  return "要約結果はこれです。要約結果はこれです。要約結果はこれです。要約結果はこれです。要約結果はこれです。要約結果はこれです。要約結果はこれです。要約結果はこれです。要約結果はこれです。要約結果はこれです。要約結果はこれです。要約結果はこれです。要約結果はこれです。要約結果はこれです。要約結果はこれです。要約結果はこれです。要約結果はこれです。要約結果はこれです。要約結果はこれです。要約結果はこれです。要約結果はこれです。要約結果はこれです。要約結果はこれです。要約結果はこれです。要約結果はこれです。要約結果はこれです。要約結果はこれです。要約結果はこれです。要約結果はこれです。要約結果はこれです。";
+  return "要約結果" + Math.random();
 }
 
 // ChatGPT のタグ付け結果の配列
 function GPT_tag() {
-  window.alert("GPT_tag() 完了");
   return [
     "ChatGPTがつけたタグ1",
     "ChatGPTがつけたタグ2",
@@ -112,17 +96,42 @@ function GPT_tag() {
 
 // ここに「pdfが読み込まれた時に実行される関数」を記述する
 function onLoadingPdf() {
-  window.alert("onLoadingPdf() 開始");
+  const item = ZoteroPane.getSelectedItems()[0];
+
+  window.alert("要約とタグの自動作成を開始");
+
+  if (item == undefined) {
+    window.alert("論文が選択されていません。");
+  }
+  summaries[item.id] = GPT_summary();
+
+  window.alert(
+    "論文: " +
+      item.getDisplayTitle() +
+      "\nid: " +
+      item.id +
+      " に\n要約: " +
+      summaries[item.id].slice(0, 10) +
+      "... を追加",
+  );
+
   const summary = window.document.getElementById("generated-summary");
   if (summary != null) {
-    window.alert("要約・タグ付け完了!!");
-    summary.innerHTML = GPT_summary();
+    summary.innerHTML = summaries[item.id];
   }
   for (const tag of GPT_tag()) {
-    const items = ZoteroPane.getSelectedItems();
-    items[0].addTag(tag);
+    item.addTag(tag);
+
+    window.alert(
+      "論文: " +
+        item.getDisplayTitle() +
+        "\nid: " +
+        item.id +
+        " に\nタグ: " +
+        tag +
+        " を追加",
+    );
   }
-  window.alert("onLoadingPdf() 完了");
 }
 
 function registerNotify() {
@@ -177,6 +186,7 @@ async function onStartup() {
   await onMainWindowLoad(window);
 }
 
+// Zoteroの起動時
 async function onMainWindowLoad(win: Window): Promise<void> {
   await new Promise((resolve) => {
     if (win.document.readyState !== "complete") {
@@ -196,12 +206,7 @@ async function onMainWindowLoad(win: Window): Promise<void> {
   ]);
   // Create ztoolkit for every window
   addon.data.ztoolkit = createZToolkit();
-  registerReaderTabPanel();
   registerPrefsWindow();
-  registerMenu();
-  await registerExtraColumns();
-  await registerItemBoxExtraRows();
-  registerShortcuts();
   registerPrompt();
   registerLibraryTabPanel();
   // onLoadingPdf();
@@ -337,10 +342,6 @@ function onReaderPopupRefresh() {
   updateReaderPopup();
 }
 
-function onReaderTabPanelRefresh() {
-  updateReaderTabPanels();
-}
-
 function onSwitchTitleColumnDisplay() {
   setPref(
     "titleColumnMode",
@@ -365,6 +366,5 @@ export default {
   onTranslateInBatch,
   onReaderPopupShow,
   onReaderPopupRefresh,
-  onReaderTabPanelRefresh,
   onSwitchTitleColumnDisplay,
 };
