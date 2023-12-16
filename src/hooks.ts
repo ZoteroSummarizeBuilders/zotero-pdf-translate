@@ -38,6 +38,13 @@ function registerLibraryTabPanel() {
             },
           },
           {
+            id: "summary-button",
+            tag: "button",
+            properties: {
+              innerText: "要約",
+            },
+          },
+          {
             id: "generated-summary",
             tag: "div",
             properties: {
@@ -243,12 +250,16 @@ async function onStartup() {
   registerReaderInitializer();
 
   // registerNotify(["item"]);
-  registerNotify();
+
   await onMainWindowLoad(window);
 }
 
 // Zoteroの起動時
 async function onMainWindowLoad(win: Window): Promise<void> {
+  const btn = document.getElementById("summary-button");
+  btn?.addEventListener("click", () => {
+    /*要約を表示する関数*/
+  });
   await new Promise((resolve) => {
     if (win.document.readyState !== "complete") {
       win.document.addEventListener("readystatechange", () => {
