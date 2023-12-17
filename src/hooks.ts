@@ -225,7 +225,7 @@ async function GPT_summary(item: Zotero.Item) {
   // addon.data.translate.selectedText = "I love bananas. It is nice!!";
   addon.data.translate.selectedText = title.toString();
   if (!addon.data.translate.selectedText) {
-    window.alert("selectedText is empty.");
+    return "Not yet. I'm sorry!";
   }
 
   let task = getLastTranslateTask();
@@ -241,7 +241,6 @@ async function GPT_summary(item: Zotero.Item) {
   // window.alert("task object: " + JSON.stringify(task, null, 2));
   // window.alert("addon: " + JSON.stringify(addon.data.translate, null, 2));
 
-  window.alert("clearly success!!--->>>" + task.result);
   return task.result || "Not yet. I'm sorry!";
 }
 
@@ -250,7 +249,7 @@ async function GPT_summaryfromtext(fulltext: string) {
   addon.data.translate.selectedText = fulltext;
 
   if (!addon.data.translate.selectedText) {
-    window.alert("selectedText is empty.");
+    return "Not yet. I'm sorry!";
   }
 
   let task = getLastTranslateTask();
@@ -266,7 +265,6 @@ async function GPT_summaryfromtext(fulltext: string) {
   // window.alert("task object: " + JSON.stringify(task, null, 2));
   // window.alert("addon: " + JSON.stringify(addon.data.translate, null, 2));
 
-  window.alert("clearly success!!--->>>" + task.result);
   return task.result || "Not yet. I'm sorry!";
 }
 
@@ -337,8 +335,6 @@ async function clicksummarizebtn(id: string, htmlid: string) {
     summary.innerHTML = summaries[id];
   }
 
-  window.alert("task object: " + JSON.stringify(task, null, 2));
-  item.addTag("1");
   for (const tag of task.Tag) {
     item.addTag(tag);
   }
