@@ -310,28 +310,40 @@ async function clicksummarizebtn(id: string, htmlid: string) {
   // const summary_text = raw_text;
   // const summary_text = await GPT_summaryfromtext(raw_text);
   // summaries[id] = summary_text;
-  const jsonString = await GPT_summaryfromtext(raw_text);
 
-  interface Task {
-    Summarytext: string;
-    Tag: string[];
+  const summaryElement = window.document.getElementById("generated-summary");
+  if (summaryElement != null) {
+    summaryElement.innerHTML = "Loading summary...";
   }
 
-  // JSONをパースしてTask型のオブジェクトに変換
-  const task: Task = JSON.parse(jsonString);
+  try {
+    const jsonString = await GPT_summaryfromtext(raw_text);
 
-  summaries[id] = task.Summarytext;
-  //}
+    interface Task {
+      Summarytext: string;
+      Tag: string[];
+    }
 
-  const summary = window.document.getElementById("generated-summary");
-  if (summary != null) {
-    summary.innerHTML = summaries[id];
+    // JSONをパースしてTask型のオブジェクトに変換
+    const task: Task = JSON.parse(jsonString);
+
+    summaries[id] = task.Summarytext;
+    //}
+
+    const summary = window.document.getElementById("generated-summary");
+    if (summary != null) {
+      summary.innerHTML = summaries[id];
+    }
+
+    for (const tag of task.Tag) {
+      item.addTag(tag);
+    }
+  } catch {
+    const summary = window.document.getElementById("generated-summary");
+    if (summary != null) {
+      summary.innerHTML = "error await.";
+    }
   }
-
-  for (const tag of task.Tag) {
-    item.addTag(tag);
-  }
-
   // for (const tag of GPT_tag(task.Tag)) {
   //   item.addTag(tag);
   // }
