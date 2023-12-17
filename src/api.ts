@@ -36,6 +36,9 @@ async function translate(
     itemID?: number;
 
     text?: string;
+    SummarizeResult?: string;
+    TagResult?: string;
+    OriginalText?: string;
   },
 ): Promise<TranslateTask>;
 /**
@@ -107,6 +110,15 @@ async function translate(
     status: "waiting",
     extraTasks: [],
     silent: true,
+    SummarizeResult: isDeprecatedCall
+      ? undefined
+      : (serviceOrOptions as any).SummarizeResult,
+    TagResult: isDeprecatedCall
+      ? undefined
+      : (serviceOrOptions as any).TagResult,
+    OriginalText: isDeprecatedCall
+      ? undefined
+      : (serviceOrOptions as any).OriginalText,
     callerID: isDeprecatedCall
       ? "unknown caller with translate for zotero api"
       : (serviceOrOptions as any).pluginID,
