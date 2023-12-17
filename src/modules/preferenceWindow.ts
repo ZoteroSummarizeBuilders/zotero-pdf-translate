@@ -1,9 +1,5 @@
 import { config } from "../../package.json";
-import { SERVICES } from "../utils/config";
 import { getString } from "../utils/locale";
-import { getPref, setPref } from "../utils/prefs";
-import { setServiceSecret, validateServiceSecret } from "../utils/secret";
-import { secretStatusButtonData } from "./settings";
 
 export function registerPrefsWindow() {
   ztoolkit.PreferencePane.register({
