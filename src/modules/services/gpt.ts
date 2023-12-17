@@ -13,14 +13,19 @@ const gptTranslate = async function (
     // langFrom: string, // 翻訳元言語
     // langTo: string, // 翻訳先言語
     // sourceText: string, // 原文テキスト
-    text: string,
+    // text: string,
+    // SummarizeResult: string,
+    // TagResult: string,
+    OriginalText: string,
   ) {
     return (
       (getPref(`${prefix}.prompt`) as string)
         // .replaceAll("${langFrom}", langFrom)
         // .replaceAll("${langTo}", langTo)
         // .replaceAll("${sourceText}", sourceText);
-        .replaceAll("${text}", text)
+        // .replaceAll("${SummarizeResult}", SummarizeResult)
+        // .replaceAll("${TagResult}", TagResult)
+        .replaceAll("${OriginalText}", OriginalText)
     );
   }
 
@@ -36,7 +41,7 @@ const gptTranslate = async function (
       messages: [
         {
           role: "user",
-          content: transformContent(data.text),
+          content: transformContent(data.raw),
         },
       ],
       temperature: temperature,
@@ -72,9 +77,6 @@ const gptTranslate = async function (
         // Remove \n\n from the beginning of the data
         data.result = result.replace(/^\n\n/, "");
         preLength = e.target.response.length;
-
-        if (data.type === "text") {
-        }
       };
     },
   });

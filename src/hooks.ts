@@ -259,7 +259,7 @@ async function GPT_summaryfromtext(fulltext: string) {
   }
 
   await addon.hooks.onTranslate(task);
-  // window.alert("task object: " + JSON.stringify(task, null, 2));
+  window.alert("task object: " + JSON.stringify(task, null, 2));
   // window.alert("addon: " + JSON.stringify(addon.data.translate, null, 2));
 
   window.alert("clearly success!!--->>>" + task.result);
@@ -309,14 +309,20 @@ async function clicksummarizebtn(id: string, htmlid: string) {
   }
   // const text = await FullTextfromid(id);
   const text = fulltext.toString();
-  const summary_text = await GPT_summaryfromtext(text);
+  // const summary_text = await GPT_summaryfromtext(text);
+
+  // const raw_text = await FullTextfromid(id);
+
+  const abstract = item.getField("abstractNote");
+  const raw_text = abstract.toString();
+  const summary_text = await GPT_summaryfromtext(raw_text);
 
   if (summaries[id] == undefined) {
     // const text = await FullTextfromid(id);
     // const abstract = item.getField("abstractNote");
+    // summaries[id] = abstract.toString();
     // summaries[id] = await GPT_summaryfromtext(text);
     summaries[id] = summary_text;
-    // summaries[id] = abstract.toString();
   }
   const summary = window.document.getElementById("generated-summary");
   if (summary != null) {
