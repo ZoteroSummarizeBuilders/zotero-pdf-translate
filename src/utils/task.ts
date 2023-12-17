@@ -83,6 +83,9 @@ export interface TranslateTask {
   callerID?: string;
 
   text?: string;
+  SummarizeResult?: string;
+  TagResult?: string;
+  OriginalText?: string;
 }
 
 export type TranslateTaskProcessor = (
