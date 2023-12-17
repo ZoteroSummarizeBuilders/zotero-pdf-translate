@@ -342,6 +342,7 @@ async function clicksummarizebtn(id: string, htmlid: string) {
   for (const tag of task.Tag) {
     item.addTag(tag);
   }
+
   // for (const tag of GPT_tag(task.Tag)) {
   //   item.addTag(tag);
   // }
