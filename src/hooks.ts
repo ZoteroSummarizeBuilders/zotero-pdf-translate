@@ -308,13 +308,13 @@ async function clicksummarizebtn(id: string, htmlid: string) {
     fulltext.push(await HtmlTextfromid(id));
   }
   // const text = await FullTextfromid(id);
-  const text = fulltext.toString();
+  const raw_text = fulltext.toString();
   // const summary_text = await GPT_summaryfromtext(text);
 
   // const raw_text = await FullTextfromid(id);
 
-  const abstract = item.getField("abstractNote");
-  const raw_text = abstract.toString();
+  // const abstract = item.getField("abstractNote");
+  // const raw_text = abstract.toString();
   const summary_text = await GPT_summaryfromtext(raw_text);
 
   if (summaries[id] == undefined) {
