@@ -118,20 +118,27 @@ async function FullTextfromid(id: string): Promise<string> {
     const attachmentIDs = item.getAttachments();
     for (const id_text of attachmentIDs) {
       const attachment = Zotero.Items.get(id_text);
+      // window.alert("attachment is "+ attachment.attachmentContentType.toString());
       if (
-        attachment.attachmentContentType == "application/pdf" ||
-        attachment.attachmentContentType == "text/html"
+        attachment.attachmentContentType == "application/pdf" //||
+        // attachment.attachmentContentType == "text/html"
       ) {
+        // window.alert("pdf in");
         const text = await attachment.attachmentText;
-        if (text.length > 0) {
-          fulltext.push(text);
-        }
-        // window.alert("pdf3"+ text);
+        // window.alert("pdf1 is "+ text);
+        // if (text.length > 0) {
+        fulltext.push(text);
+        // window.alert("pdf2 fulltext is "+ fulltext);
+        // window.alert("pdf2 text is "+ fulltext);
+        // }
+        // window.alert("pdf3 fulltext is "+ fulltext);
+        window.alert("text is " + text);
         // return fulltext.toString();
       }
     }
   }
-  return splitString(fulltext.join(", "), 40);
+  // return splitString(fulltext.join(", "), 40);
+  return fulltext.join(", ");
 }
 
 // ChatGPT の要約結果
@@ -245,13 +252,15 @@ async function onLoadingPdf(id: string) {
 // ここに「要約ボタンをおしたときに実行される関数」を記述する
 async function clicksummarizebtn(id: string) {
   const item = Zotero.Items.get(id);
-  // const text = await FullTextfromid(id);
+  // window.alert("get id done");
+  const text = await FullTextfromid(id);
+  // window.alert("full text is "+text);
   if (summaries[id] == undefined) {
     // const text = await FullTextfromid(id);
     const abstract = item.getField("abstractNote");
     // summaries[id] = await GPT_summaryfromtext(text);
-    // summaries[id] = text;
-    summaries[id] = abstract.toString();
+    summaries[id] = text;
+    // summaries[id] = abstract.toString();
     // summaries[id] = "hogehoge";
   }
   const summary = window.document.getElementById("generated-summary");
@@ -306,7 +315,7 @@ function registerNotify() {
       }
       if (!addon?.data.alive) {
         unregisterNotify(notifyID);
-        window.alert("in unregistard notify ");
+        // window.alert("in unregistard notify ");
         return;
       }
       addon.hooks.onNotify(event, type, ids, extraData);
