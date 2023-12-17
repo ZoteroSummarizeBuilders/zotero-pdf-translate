@@ -41,7 +41,7 @@ service-chatgpt-dialog-close=Close
 
 readerpopup-translate-label=Translate
 
-pref-title=Translate
+pref-title=Zotero-Summarize
 
 itemmenu-translateTitle-label=Translate Title
 itemmenu-translateAbstract-label=Translate Abstract
