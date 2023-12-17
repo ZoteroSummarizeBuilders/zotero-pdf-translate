@@ -1,3 +1,4 @@
+pref-title = Zotero-Summarize
 pref-general = General
 pref-basic-enableAuto =
     .label = Auto-Trans Selection
@@ -20,11 +21,13 @@ pref-audio-autoPlay =
 pref-audio-showPlayBtn =
     .label = Show play buttons in popup panel
 
-pref-service = Service
+pref-service = サービス
 pref-service-sentenceServices =
-    .value = Translation Services
+    .value = ChatGPTの連携
 pref-service-sentenceServicesSecret =
-    .value = Secret
+    .value = APIキー
+pref-service-confirm =
+    .value = 適用
 pref-service-useWordService =
     .label = Use Dictionary Service for Word Translation
 pref-service-wordServices =
@@ -36,13 +39,14 @@ pref-service-langfrom =
 pref-service-langto =
     .value = To
 pref-service-hint =
-    .value = Translate Engine with 🗝️ requires Secret; See GitHub for more information
+    .value = 自動要約、タグ付けにはChatGPTのAPIキーが必要です。より詳しい情報はGitHubをご覧ください。
 
-pref-interface = User Interface
+
+pref-interface = ユーザーインターフェース
 pref-interface-fontSize =
-    .value = Font Size
+    .value = 文字の大きさ
 pref-interface-lineHeight =
-    .value = Line Height
+    .value = 行の高さ
 pref-interface-showItemMenu =
     .label = Item Menu
 pref-interface-showItemMenuTitleTranslation =
@@ -85,7 +89,7 @@ pref-advanced-extraEngines =
 pref-advanced-splitChar =
     .value = Split Character(between text and translation)
 
-pref-about = About
+pref-about = Zotero-Summarize について
 pref-about-feedback =
     .value = GitHub
 pref-about-docs =
