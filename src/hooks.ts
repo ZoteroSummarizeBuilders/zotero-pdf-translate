@@ -3,43 +3,60 @@ import {
   registerPrefsScripts,
   registerPrefsWindow,
 } from "./modules/preferenceWindow";
-import {
-  ReaderPopupEvent,
-  buildReaderPopup,
-  updateReaderPopup,
-} from "./modules/popup";
 // import { registerNotify } from "./modules/notify";
-import { registerReaderInitializer } from "./modules/reader";
 import { getPref, setPref } from "./utils/prefs";
 import {
-  addTranslateAnnotationTask,
   addTranslateTask,
-  addTranslateTitleTask,
   getLastTranslateTask,
   TranslateTask,
 } from "./utils/task";
 import { setDefaultPrefSettings } from "./modules/defaultPrefs";
 import Addon from "./addon";
 import { config } from "../package.json";
-import { registerPrompt } from "./modules/prompt";
 import { createZToolkit } from "./utils/ztoolkit";
 import { randomInt } from "crypto";
 
-
 // 要約結果の辞書型配列
 // * idを指定するとその論文の要約を返す
-const summaries: { [id: number]: string } = {};
+const summaries: { [id: string]: string } = {};
 
 function registerLibraryTabPanel() {
   const tabId = ztoolkit.LibraryTabPanel.register(
     "要約",
     (panel: XUL.Element, win: Window) => {
       const elem = ztoolkit.UI.createElement(win.document, "vbox", {
+        styles: { maxWidth: "300px" },
         children: [
           {
             tag: "h2",
             properties: {
               innerText: "要約",
+            },
+          },
+          {
+            id: "summary-button-pdf",
+            tag: "button",
+            properties: {
+              innerText: "PDF",
+            },
+            styles: {
+              width: "300px",
+              // height: "50px",
+              minWidth: "300px",
+              maxWidth: "300px",
+            },
+          },
+          {
+            id: "summary-button-html",
+            tag: "button",
+            properties: {
+              innerText: "html",
+            },
+            styles: {
+              width: "300px",
+              // height: "50px",
+              minWidth: "300px",
+              maxWidth: "300px",
             },
           },
           {
@@ -52,6 +69,19 @@ function registerLibraryTabPanel() {
         ],
       });
       panel.append(elem);
+      // const elem2 = ztoolkit.UI.createElement(win.document, "vbox",{
+      //   styles:{maxWidth: "300px"},
+      //   children: [
+      //     {
+      //       id: "generated-summary",
+      //       tag: "div",
+      //       properties: {
+      //         innerText: "ここに要約文が出力されます。",
+      //       },
+      //     },
+      //   ],
+      // });
+      // panel.append(elem2);
     },
     {
       targetIndex: 1,
@@ -80,18 +110,103 @@ const FullText = async () => {
   }
 };
 
-// ChatGPT の要約結果
-function GPT_summary() {
-  const task = getLastTranslateTask();
-  let summary_text: string; // `summary_text`をifブロックの外で定義
+// 文字列を指定された文字数ごとに改行して表示
+function splitString(string: string, length: number) {
+  const result = [];
+  while (string.length > 0) {
+    result.push(string.substring(0, length));
+    string = string.substring(length);
+  }
+  return splitString(result.join("<br></br>"), 40);
+}
 
-  if (!task) {
-    summary_text = "Not Yet. I'm sorry///."; // 値を割り当てる
-  } else {
-    summary_text = task.result; // 値を割り当てる
+// idからpdf文書の全文の取得
+async function FullTextfromid(id: string): Promise<string> {
+  // window.alert("in fulltext id is "+id);
+  // const item = ZoteroPane.getSelectedItems()[0];
+  const item = Zotero.Items.get(id);
+  const fulltext: string[] = [];
+  if (item.isRegularItem()) {
+    // not an attachment already
+    const attachmentIDs = item.getAttachments();
+    for (const id_text of attachmentIDs) {
+      const attachment = Zotero.Items.get(id_text);
+      if (
+        attachment.attachmentContentType == "application/pdf" ||
+        attachment.attachmentContentType == "text/html"
+      ) {
+        const text = await attachment.attachmentText;
+        if (text.length > 0) {
+          fulltext.push(text);
+        }
+        // window.alert("pdf3"+ text);
+        // return fulltext.toString();
+      }
+    }
+  }
+  return splitString(fulltext.join(", "), 40);
+}
+
+// ChatGPT の要約結果
+async function GPT_summary(item: Zotero.Item) {
+  const title = item.getField("title");
+  // addon.data.translate.selectedText = "I love bananas. It is nice!!";
+  addon.data.translate.selectedText = title.toString();
+  if (!addon.data.translate.selectedText) {
+    window.alert("selectedText is empty.");
   }
 
-  return summary_text + Math.random(); // `summary_text`はここで利用可能
+  let task = getLastTranslateTask();
+  if (!task) {
+    task = addTranslateTask(addon.data.translate.selectedText);
+
+    if (!task) {
+      return "Not yet. I'm sorry!";
+    }
+  }
+
+  await addon.hooks.onTranslate(task);
+  // window.alert("task object: " + JSON.stringify(task, null, 2));
+  // window.alert("addon: " + JSON.stringify(addon.data.translate, null, 2));
+
+  window.alert("clearly success!!--->>>" + task.result);
+  return task.result || "Not yet. I'm sorry!";
+}
+
+// ChatGPT の要約結果
+function GPT_summaryfromtext(fulltext: string) {
+  // const title = item.getField("title");
+  // addon.data.translate.selectedText = "I love bananas. It is nice!!";
+  addon.data.translate.selectedText = fulltext;
+  if (!addon.data.translate.selectedText) {
+    window.alert("selectedText is empty.");
+  }
+
+  let task = getLastTranslateTask();
+
+  if (!task) {
+    task = addTranslateTask(addon.data.translate.selectedText);
+
+    // window.alert(
+    //   "addTranslateTask-->" +
+    //     task +
+    //     "\ntask result--->" +
+    //     task.result +
+    //     "\nselectedText-->" +
+    //     addon.data.translate.selectedText,
+    // );
+
+    if (!task) {
+      return "Not yet. I'm sorry!";
+    }
+  }
+
+  addon.hooks.onTranslate(task, { noDisplay: true });
+  // window.alert("task object: " + JSON.stringify(task, null, 2));
+  // window.alert("addon: " + JSON.stringify(addon.data.translate, null, 2));
+
+  window.alert("clearly success!!--->>>" + task.result);
+  return task.result || "Not yet. I'm sorry!";
 }
 
 // ChatGPT のタグ付け結果の配列
@@ -104,52 +219,75 @@ function GPT_tag() {
 }
 
 // ここに「pdfが読み込まれた時に実行される関数」を記述する
-function onLoadingPdf() {
+async function onLoadingPdf(id: string) {
   const item = ZoteroPane.getSelectedItems()[0];
-
-  window.alert("要約とタグの自動作成を開始");
-
-  if (item == undefined) {
-    window.alert("論文が選択されていません。");
+  if (summaries[id] === undefined) {
+    try {
+      const summaryText = await GPT_summary(item);
+      summaries[id] = summaryText;
+    } catch (error) {
+      const summaryText = "await error.";
+    }
   }
-  summaries[item.id] = GPT_summary();
+  // const item = ZoteroPane.item
+  // window.alert(item.id);
+  // if (summaries[id] == undefined) {
+  //   // const text = await FullTextfromid(id);
+  //   // if (text.length > 0) {
+  //   //   window.alert("fulltext is " + text);
+  //   // } else {
+  //   //   window.alert("fulltext is null");
+  //   // }
 
-  window.alert(
-    "論文: " +
-      item.getDisplayTitle() +
-      "\nid: " +
-      item.id +
-      " に\n要約: " +
-      summaries[item.id].slice(0, 10) +
-      "... を追加",
-  );
+  //   summaries[id] = GPT_summary(item);
 
+  //   // window.alert("fulltext return is "+FullTextfromid(id));
+  //   // window.alert(
+  //   //   "id:" + id + "の論文に要約を追加"
+  //   // );
+  // }
   const summary = window.document.getElementById("generated-summary");
   if (summary != null) {
-    summary.innerHTML = summaries[item.id];
+    summary.innerHTML = summaries[id];
   }
   for (const tag of GPT_tag()) {
     item.addTag(tag);
-
-    window.alert(
-      "論文: " +
-        item.getDisplayTitle() +
-        "\nid: " +
-        item.id +
-        " に\nタグ: " +
-        tag +
-        " を追加",
-    );
   }
 }
 
+// ここに「要約ボタンをおしたときに実行される関数」を記述する
+async function clicksummarizebtn(id: string) {
+  const item = Zotero.Items.get(id);
+  // const text = await FullTextfromid(id);
+  if (summaries[id] == undefined) {
+    // const text = await FullTextfromid(id);
+    const abstract = item.getField("abstractNote");
+    // summaries[id] = await GPT_summaryfromtext(text);
+    // summaries[id] = text;
+    summaries[id] = abstract.toString();
+    // summaries[id] = "hogehoge";
+  }
+  const summary = window.document.getElementById("generated-summary");
+  if (summary != null) {
+    summary.innerHTML = summaries[id];
+  }
 
-function Summaryshow(event: ReaderPopupEvent) {
-  onLoadingPdf();
+  //item.addTag("1");
+  // for (const tag of GPT_tag()) {
+  //   item.addTag(tag);
+  // }
 }
 
 // ここに「論文を選択したときに実行される関数」を記述する
-function onSelectedItem() {}
+function onSelectItem() {
+  const item = ZoteroPane.getSelectedItems()[0];
+  const summary = window.document.getElementById("generated-summary");
+  if (item && summary) {
+    summary.innerText = summaries[item.id];
+    // window.alert(summary.innerText);
+  }
+  // window.alert("ID: " + item.id + " のpdfが選択されました");
+}
 
 function registerNotify() {
   const callback = {
@@ -163,16 +301,34 @@ function registerNotify() {
       if (type == "item") {
         for (const id of ids) {
           //ここに実行したい関数を追加
-          onLoadingPdf();
+          const item = Zotero.Items.get(id);
+          if (item.isRegularItem()) {
+            // not an attachment already
+            const attachmentIDs = item.getAttachments();
+            for (const id_text of attachmentIDs) {
+              const attachment = Zotero.Items.get(id_text);
+              if (
+                attachment.attachmentContentType == "application/pdf" ||
+                attachment.attachmentContentType == "text/html"
+              ) {
+                onLoadingPdf(id.toString());
+              }
+            }
+          }
         }
       }
       if (!addon?.data.alive) {
         unregisterNotify(notifyID);
+        window.alert("in unregistard notify ");
         return;
       }
       addon.hooks.onNotify(event, type, ids, extraData);
     },
   };
+
+  function onPreview() {
+    //window.alert()
+  }
 
   // Register the callback in Zotero as an item observer
   const notifyID = Zotero.Notifier.registerObserver(callback, [
@@ -196,10 +352,9 @@ async function onStartup() {
 
   setDefaultPrefSettings();
 
-  registerReaderInitializer();
-
   // registerNotify(["item"]);
   registerNotify();
+
   await onMainWindowLoad(window);
 }
 
@@ -224,9 +379,30 @@ async function onMainWindowLoad(win: Window): Promise<void> {
   // Create ztoolkit for every window
   addon.data.ztoolkit = createZToolkit();
   registerPrefsWindow();
-  registerPrompt();
   registerLibraryTabPanel();
   // onLoadingPdf();
+
+  initListener();
+
+  //PDFボタンが押されたとき
+  const btn_pdf = document.getElementById("summary-button-pdf");
+  btn_pdf?.addEventListener("click", () => {
+    const item = ZoteroPane.getSelectedItems()[0];
+    // window.alert("btton is pushed");
+    clicksummarizebtn(item.id.toString());
+  });
+
+  //HTMLボタンが押されたとき
+  const btn_html = document.getElementById("summary-button-html");
+  btn_html?.addEventListener("click", () => {
+    const item = ZoteroPane.getSelectedItems()[0];
+    // window.alert("btton is pushed");
+    clicksummarizebtn(item.id.toString());
+  });
+}
+
+function initListener() {
+  window.addEventListener("mousedown", onSelectItem);
 }
 
 async function onMainWindowUnload(win: Window): Promise<void> {
@@ -257,14 +433,14 @@ function onNotify(
     if (annotationItems.length === 0) {
       return;
     }
-    if (getPref("enableComment")) {
-      addon.hooks.onTranslateInBatch(
-        annotationItems
-          .map((item) => addTranslateAnnotationTask(item.id))
-          .filter((task) => task) as TranslateTask[],
-        { noDisplay: true },
-      );
-    }
+    // if (getPref("enableComment")) {
+    //   addon.hooks.onTranslateInBatch(
+    //     annotationItems
+    //       .map((item) => addTranslateAnnotationTask(item.id))
+    //       .filter((task) => task) as TranslateTask[],
+    //     { noDisplay: true },
+    //   );
+    // }
   } else {
     return;
   }
@@ -272,31 +448,6 @@ function onNotify(
 
 function onPrefsLoad(event: Event) {
   registerPrefsScripts((event.target as any).ownerGlobal);
-}
-
-function onShortcuts(type: string) {
-  switch (type) {
-    case "library":
-      {
-        addon.hooks.onSwitchTitleColumnDisplay();
-        addon.hooks.onTranslateInBatch(
-          ZoteroPane.getSelectedItems(true)
-            .map((id) => addTranslateTitleTask(id, true))
-            .filter((task) => task) as TranslateTask[],
-          { noDisplay: true },
-        );
-      }
-      break;
-    case "reader":
-      {
-        addon.hooks.onTranslate(undefined, {
-          noCheckZoteroItemLanguage: true,
-        });
-      }
-      break;
-    default:
-      break;
-  }
 }
 
 async function onTranslate(): Promise<void>;
@@ -339,26 +490,6 @@ async function onTranslateInBatch(
   }
 }
 
-function onReaderPopupShow(event: ReaderPopupEvent) {
-  const selection = addon.data.translate.selectedText;
-  const task = getLastTranslateTask();
-  if (task?.raw === selection) {
-    buildReaderPopup(event);
-    addon.hooks.onReaderPopupRefresh();
-    return;
-  }
-  addTranslateTask(selection, event.reader.itemID);
-  buildReaderPopup(event);
-  addon.hooks.onReaderPopupRefresh();
-  if (getPref("enableAuto")) {
-    addon.hooks.onTranslate();
-  }
-}
-
-function onReaderPopupRefresh() {
-  updateReaderPopup();
-}
-
 function onSwitchTitleColumnDisplay() {
   setPref(
     "titleColumnMode",
@@ -373,16 +504,12 @@ function onSwitchTitleColumnDisplay() {
 
 export default {
   onStartup,
-  Summaryshow,
   onMainWindowLoad,
   onMainWindowUnload,
   onShutdown,
   onNotify,
   onPrefsLoad,
-  onShortcuts,
   onTranslate,
   onTranslateInBatch,
-  onReaderPopupShow,
-  onReaderPopupRefresh,
   onSwitchTitleColumnDisplay,
 };
