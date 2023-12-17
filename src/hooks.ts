@@ -37,11 +37,10 @@ function registerLibraryTabPanel() {
             id: "summary-button-pdf",
             tag: "button",
             properties: {
-              innerText: "PDF",
+              innerText: "summarize from PDF",
             },
             styles: {
               width: "300px",
-              // height: "50px",
               minWidth: "300px",
               maxWidth: "300px",
             },
@@ -50,11 +49,22 @@ function registerLibraryTabPanel() {
             id: "summary-button-html",
             tag: "button",
             properties: {
-              innerText: "html",
+              innerText: "summarize from html",
             },
             styles: {
               width: "300px",
-              // height: "50px",
+              minWidth: "300px",
+              maxWidth: "300px",
+            },
+          },
+          {
+            id: "summary-button-abst",
+            tag: "button",
+            properties: {
+              innerText: "summarize from abstract",
+            },
+            styles: {
+              width: "300px",
               minWidth: "300px",
               maxWidth: "300px",
             },
@@ -166,7 +176,7 @@ async function HtmlTextfromid(id: string): Promise<string> {
         if (attachment.attachmentContentType == "text/html") {
           const text = await attachment.attachmentText;
           fulltext.push(text);
-          window.alert("fulltext is " + text);
+          // window.alert("fulltext is " + text);
         } else {
           // fulltext.push("Attachment contents may not be pdf or html or nothig!!");
           window.alert("Attachment contents may not be html!!");
@@ -198,7 +208,7 @@ async function PdfTextfromid(id: string): Promise<string> {
         if (attachment.attachmentContentType == "application/pdf") {
           const text = await attachment.attachmentText;
           fulltext.push(text);
-          window.alert("fulltext is " + text);
+          // window.alert("fulltext is " + text);
         } else {
           // fulltext.push("Attachment contents may not be pdf or html or nothig!!");
           window.alert("Attachment contents may not be pdf!!");
@@ -301,29 +311,20 @@ async function clicksummarizebtn(id: string, htmlid: string) {
   const item = Zotero.Items.get(id);
   const fulltext = [];
   if (htmlid == "summary-button-pdf") {
-    window.alert("push pdf button.");
     fulltext.push(await PdfTextfromid(id));
   } else if (htmlid == "summary-button-html") {
-    window.alert("push html button.");
     fulltext.push(await HtmlTextfromid(id));
+  } else if (htmlid == "summary-button-abst") {
+    const abstract = item.getField("abstractNote");
+    fulltext.push(abstract.toString());
+  } else {
+    window.alert("error!");
   }
-  // const text = await FullTextfromid(id);
   const raw_text = fulltext.toString();
-  // const summary_text = await GPT_summaryfromtext(text);
-
-  // const raw_text = await FullTextfromid(id);
-
-  // const abstract = item.getField("abstractNote");
-  // const raw_text = abstract.toString();
+  window.alert("raw_text is " + raw_text);
+  // const summary_text = raw_text;
   const summary_text = await GPT_summaryfromtext(raw_text);
-
-  if (summaries[id] == undefined) {
-    // const text = await FullTextfromid(id);
-    // const abstract = item.getField("abstractNote");
-    // summaries[id] = abstract.toString();
-    // summaries[id] = await GPT_summaryfromtext(text);
-    summaries[id] = summary_text;
-  }
+  summaries[id] = summary_text;
   const summary = window.document.getElementById("generated-summary");
   if (summary != null) {
     summary.innerHTML = summaries[id];
@@ -445,7 +446,7 @@ async function onMainWindowLoad(win: Window): Promise<void> {
   const btn_pdf = document.getElementById("summary-button-pdf");
   btn_pdf?.addEventListener("click", () => {
     const item = ZoteroPane.getSelectedItems()[0];
-    // window.alert("btton is pushed");
+    // window.alert("pdf button is pushed");
     clicksummarizebtn(item.id.toString(), "summary-button-pdf");
   });
 
@@ -453,8 +454,16 @@ async function onMainWindowLoad(win: Window): Promise<void> {
   const btn_html = document.getElementById("summary-button-html");
   btn_html?.addEventListener("click", () => {
     const item = ZoteroPane.getSelectedItems()[0];
-    // window.alert("btton is pushed");
+    // window.alert("html button is pushed");
     clicksummarizebtn(item.id.toString(), "summary-button-html");
+  });
+
+  //Abstractボタンが押されたとき
+  const btn_abst = document.getElementById("summary-button-abst");
+  btn_abst?.addEventListener("click", () => {
+    const item = ZoteroPane.getSelectedItems()[0];
+    // window.alert("abst button is pushed");
+    clicksummarizebtn(item.id.toString(), "summary-button-abst");
   });
 }
 
