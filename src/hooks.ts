@@ -297,10 +297,18 @@ async function onLoadingPdf(id: string) {
 }
 
 // ここに「要約ボタンをおしたときに実行される関数」を記述する
-async function clicksummarizebtn(id: string) {
+async function clicksummarizebtn(id: string, htmlid: string) {
   const item = Zotero.Items.get(id);
-
-  const text = await FullTextfromid(id);
+  const fulltext = [];
+  if (htmlid == "summary-button-pdf") {
+    window.alert("push pdf button.");
+    fulltext.push(await PdfTextfromid(id));
+  } else if (htmlid == "summary-button-html") {
+    window.alert("push html button.");
+    fulltext.push(await HtmlTextfromid(id));
+  }
+  // const text = await FullTextfromid(id);
+  const text = fulltext.toString();
   const summary_text = await GPT_summaryfromtext(text);
 
   if (summaries[id] == undefined) {
@@ -432,7 +440,7 @@ async function onMainWindowLoad(win: Window): Promise<void> {
   btn_pdf?.addEventListener("click", () => {
     const item = ZoteroPane.getSelectedItems()[0];
     // window.alert("btton is pushed");
-    clicksummarizebtn(item.id.toString());
+    clicksummarizebtn(item.id.toString(), "summary-button-pdf");
   });
 
   //HTMLボタンが押されたとき
@@ -440,7 +448,7 @@ async function onMainWindowLoad(win: Window): Promise<void> {
   btn_html?.addEventListener("click", () => {
     const item = ZoteroPane.getSelectedItems()[0];
     // window.alert("btton is pushed");
-    clicksummarizebtn(item.id.toString());
+    clicksummarizebtn(item.id.toString(), "summary-button-html");
   });
 }
 
