@@ -269,7 +269,7 @@ async function GPT_summaryfromtext(fulltext: string) {
   }
 
   await addon.hooks.onTranslate(task);
-  window.alert("task object: " + JSON.stringify(task, null, 2));
+  // window.alert("task object: " + JSON.stringify(task, null, 2));
   // window.alert("addon: " + JSON.stringify(addon.data.translate, null, 2));
 
   window.alert("clearly success!!--->>>" + task.result);
@@ -277,12 +277,8 @@ async function GPT_summaryfromtext(fulltext: string) {
 }
 
 // ChatGPT のタグ付け結果の配列
-function GPT_tag() {
-  return [
-    "ChatGPTがつけたタグ1",
-    "ChatGPTがつけたタグ2",
-    "ChatGPTがつけたタグ3",
-  ];
+function GPT_tag(Tag: string[]) {
+  return Tag;
 }
 
 // ここに「pdfが読み込まれた時に実行される関数」を記述する
@@ -301,9 +297,9 @@ async function onLoadingPdf(id: string) {
   if (summary != null) {
     summary.innerHTML = summaries[id];
   }
-  for (const tag of GPT_tag()) {
-    item.addTag(tag);
-  }
+  // for (const tag of GPT_tag()) {
+  //   item.addTag(tag);
+  // }
 }
 
 // ここに「要約ボタンをおしたときに実行される関数」を記述する
@@ -321,17 +317,40 @@ async function clicksummarizebtn(id: string, htmlid: string) {
     window.alert("error!");
   }
   const raw_text = fulltext.toString();
+
   window.alert("raw_text is " + raw_text);
   // const summary_text = raw_text;
-  const summary_text = await GPT_summaryfromtext(raw_text);
-  summaries[id] = summary_text;
+  // const summary_text = await GPT_summaryfromtext(raw_text);
+  // summaries[id] = summary_text;
+  const jsonString = await GPT_summaryfromtext(raw_text);
+
+  interface Task {
+    Summarytext: string;
+    Tag: string[];
+  }
+
+  // JSONをパースしてTask型のオブジェクトに変換
+  const task: Task = JSON.parse(jsonString);
+
+  //if (summaries[id] == undefined) {
+    // const text = await FullTextfromid(id);
+    // const abstract = item.getField("abstractNote");
+    // summaries[id] = abstract.toString();
+    // summaries[id] = await GPT_summaryfromtext(text);
+  summaries[id] = task.Summarytext;
+  //}
+
   const summary = window.document.getElementById("generated-summary");
   if (summary != null) {
     summary.innerHTML = summaries[id];
   }
 
+  window.alert("task object: " + JSON.stringify(task, null, 2));
   item.addTag("1");
-  // for (const tag of GPT_tag()) {
+  for (const tag of task.Tag) {
+    item.addTag(tag);
+  }
+  // for (const tag of GPT_tag(task.Tag)) {
   //   item.addTag(tag);
   // }
 }
