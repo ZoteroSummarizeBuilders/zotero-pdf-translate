@@ -168,34 +168,23 @@ async function GPT_summary(item: Zotero.Item) {
 }
 
 // ChatGPT の要約結果
-function GPT_summaryfromtext(fulltext: string) {
-  // const title = item.getField("title");
-  // addon.data.translate.selectedText = "I love bananas. It is nice!!";
+async function GPT_summaryfromtext(fulltext: string) {
   addon.data.translate.selectedText = fulltext;
+
   if (!addon.data.translate.selectedText) {
     window.alert("selectedText is empty.");
   }
 
   let task = getLastTranslateTask();
-
   if (!task) {
     task = addTranslateTask(addon.data.translate.selectedText);
-
-    // window.alert(
-    //   "addTranslateTask-->" +
-    //     task +
-    //     "\ntask result--->" +
-    //     task.result +
-    //     "\nselectedText-->" +
-    //     addon.data.translate.selectedText,
-    // );
 
     if (!task) {
       return "Not yet. I'm sorry!";
     }
   }
 
-  addon.hooks.onTranslate(task, { noDisplay: true });
+  await addon.hooks.onTranslate(task);
   // window.alert("task object: " + JSON.stringify(task, null, 2));
   // window.alert("addon: " + JSON.stringify(addon.data.translate, null, 2));
 
@@ -223,23 +212,7 @@ async function onLoadingPdf(id: string) {
       const summaryText = "await error.";
     }
   }
-  // const item = ZoteroPane.item
-  // window.alert(item.id);
-  // if (summaries[id] == undefined) {
-  //   // const text = await FullTextfromid(id);
-  //   // if (text.length > 0) {
-  //   //   window.alert("fulltext is " + text);
-  //   // } else {
-  //   //   window.alert("fulltext is null");
-  //   // }
 
-  //   summaries[id] = GPT_summary(item);
-
-  //   // window.alert("fulltext return is "+FullTextfromid(id));
-  //   // window.alert(
-  //   //   "id:" + id + "の論文に要約を追加"
-  //   // );
-  // }
   const summary = window.document.getElementById("generated-summary");
   if (summary != null) {
     summary.innerHTML = summaries[id];
@@ -252,16 +225,16 @@ async function onLoadingPdf(id: string) {
 // ここに「要約ボタンをおしたときに実行される関数」を記述する
 async function clicksummarizebtn(id: string) {
   const item = Zotero.Items.get(id);
-  // window.alert("get id done");
+
   const text = await FullTextfromid(id);
-  // window.alert("full text is "+text);
+  const summary_text = await GPT_summaryfromtext(text);
+
   if (summaries[id] == undefined) {
     // const text = await FullTextfromid(id);
-    const abstract = item.getField("abstractNote");
+    // const abstract = item.getField("abstractNote");
     // summaries[id] = await GPT_summaryfromtext(text);
-    summaries[id] = text;
+    summaries[id] = summary_text;
     // summaries[id] = abstract.toString();
-    // summaries[id] = "hogehoge";
   }
   const summary = window.document.getElementById("generated-summary");
   if (summary != null) {
@@ -307,7 +280,7 @@ function registerNotify() {
                 attachment.attachmentContentType == "application/pdf" ||
                 attachment.attachmentContentType == "text/html"
               ) {
-                onLoadingPdf(id.toString());
+                // onLoadingPdf(id.toString());
               }
             }
           }
