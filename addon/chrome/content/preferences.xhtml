@@ -5,76 +5,36 @@
   id="zotero-prefpane-__addonRef__"
   onload="Zotero.__addonInstance__.hooks.onPrefsLoad(event)"
 >
-  <groupbox>
-    <label><html:h2 data-l10n-id="pref-general"></html:h2></label>
-    <checkbox
-      id="__addonRef__-enableAuto"
-      data-l10n-id="pref-basic-enableAuto"
-      native="true"
-      preference="__prefsPrefix__.enableAuto"
-    />
-    <!--
-    <hbox>
-      <checkbox
-        id="__addonRef__-enableComment"
-        data-l10n-id="pref-basic-enableComment"
-        native="true"
-        preference="__prefsPrefix__.enableComment"
-      />
-      <radiogroup
-        id="__addonRef__-annotationTranslationPosition"
-        class="auto-annotation"
-        orient="horizontal"
-        native="true"
-        preference="__prefsPrefix__.annotationTranslationPosition"
-      >
-        <radio
-          data-l10n-id="pref-basic-annotationTranslationInComment"
-          value="comment"
-        />
-        <radio
-          data-l10n-id="pref-basic-annotationTranslationInBody"
-          value="body"
-        />
-      </radiogroup>
-    </hbox>
-    -->
-  </groupbox>
+<groupbox>
+  <label>
+    <html:h1 
+      data-l10n-id="pref-title"
+      style="font-weight: bold; font-size: 24px;"
+    ></html:h1>
+  </label>
+</groupbox>
+  
   <groupbox>
     <label><html:h2 data-l10n-id="pref-service"></html:h2></label>
     <hbox>
       <label data-l10n-id="pref-service-sentenceServices"></label>
-      <!-- Replace -->
       <box id="__addonRef__-sentenceServices-placeholder"></box>
       <label data-l10n-id="pref-service-sentenceServicesSecret"></label>
       <html:input
         type="text"
         id="__addonRef__-sentenceServicesSecret"
+        style="width:200px"
       ></html:input>
+      <label data-l10n-id="pref-service-confirm"></label>
       <button id="__addonRef__-sentenceServicesStatus"></button>
     </hbox>
-    <hbox>
-      <label data-l10n-id="pref-service-wordServices"></label>
-      <!-- Replace -->
-      <box id="__addonRef__-wordServices-placeholder"></box>
-      <label data-l10n-id="pref-service-wordServicesSecret"></label>
-      <html:input
-        type="text"
-        id="__addonRef__-wordServicesSecret"
-        class="use-word-service"
-      ></html:input>
-    </hbox>
-    <hbox>
-      <label data-l10n-id="pref-service-langfrom"></label>
-      <!-- Replace -->
-      <box id="__addonRef__-langfrom-placeholder"></box>
-      <label data-l10n-id="pref-service-langto"></label>
-      <!-- Replace -->
-      <box id="__addonRef__-langto-placeholder"></box>
-    </hbox>
+    
+    
     <label data-l10n-id="pref-service-hint"></label>
   </groupbox>
 </vbox>
+
+
 <groupbox>
   <label><html:h2 data-l10n-id="pref-interface"></html:h2></label>
   <hbox>
@@ -83,6 +43,7 @@
       id="__addonRef__-fontSize"
       type="text"
       preference="__prefsPrefix__.fontSize"
+      style="width:40px"
     ></html:input>
   </hbox>
   <hbox>
@@ -91,18 +52,8 @@
       id="__addonRef__-lineHeight"
       type="text"
       preference="__prefsPrefix__.lineHeight"
+      style="width:40px"
     ></html:input>
-  </hbox>
-</groupbox>
-
-<groupbox>
-  <label><html:h2 data-l10n-id="pref-advanced"></html:h2></label>
-  <hbox>
-    <checkbox
-      data-l10n-id="pref-advanced-enableAutoDetectLanguage"
-      native="true"
-      preference="__prefsPrefix__.enableAutoDetectLanguage"
-    />
   </hbox>
 </groupbox>
 
