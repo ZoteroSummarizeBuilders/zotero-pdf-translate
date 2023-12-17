@@ -107,34 +107,95 @@ function splitString(string: string, length: number) {
   return splitString(result.join("<br></br>"), 40);
 }
 
-// idからpdf文書の全文の取得
+// idからitemに入ってるpdfとhtmlの全文の取得
 async function FullTextfromid(id: string): Promise<string> {
-  // window.alert("in fulltext id is "+id);
-  // const item = ZoteroPane.getSelectedItems()[0];
   const item = Zotero.Items.get(id);
   const fulltext: string[] = [];
   if (item.isRegularItem()) {
     // not an attachment already
     const attachmentIDs = item.getAttachments();
-    for (const id_text of attachmentIDs) {
-      const attachment = Zotero.Items.get(id_text);
-      // window.alert("attachment is "+ attachment.attachmentContentType.toString());
-      if (
-        attachment.attachmentContentType == "application/pdf" //||
-        // attachment.attachmentContentType == "text/html"
-      ) {
-        // window.alert("pdf in");
-        const text = await attachment.attachmentText;
-        // window.alert("pdf1 is "+ text);
-        // if (text.length > 0) {
-        fulltext.push(text);
-        // window.alert("pdf2 fulltext is "+ fulltext);
-        // window.alert("pdf2 text is "+ fulltext);
-        // }
-        // window.alert("pdf3 fulltext is "+ fulltext);
-        window.alert("text is " + text);
-        // return fulltext.toString();
+    // window.alert("attachmentIDs are #"+ attachmentIDs.toString()+"#");
+    if (attachmentIDs.toString().length > 0) {
+      for (const id_text of attachmentIDs) {
+        const attachment = Zotero.Items.get(id_text);
+        // window.alert("attachment is "+ attachment.toString());
+        if (
+          attachment.attachmentContentType == "application/pdf" ||
+          attachment.attachmentContentType == "text/html"
+        ) {
+          const text = await attachment.attachmentText;
+          fulltext.push(text);
+          window.alert("fulltext is " + text);
+        }
       }
+    } else {
+      // fulltext.push("Attachment contents may not be pdf or html or nothig!!");
+      window.alert("Attachment contents may not be pdf or html or nothig!!");
+      return fulltext.join(", ");
+    }
+  }
+  // return splitString(fulltext.join(", "), 40);
+  return fulltext.join(", ");
+}
+
+// idからitemに入ってるhtmlの全文の取得
+async function HtmlTextfromid(id: string): Promise<string> {
+  const item = Zotero.Items.get(id);
+  const fulltext: string[] = [];
+  if (item.isRegularItem()) {
+    // not an attachment already
+    const attachmentIDs = item.getAttachments();
+    // window.alert("attachmentIDs are #"+ attachmentIDs.toString()+"#");
+    if (attachmentIDs.toString().length > 0) {
+      for (const id_text of attachmentIDs) {
+        const attachment = Zotero.Items.get(id_text);
+        // window.alert("attachment is "+ attachment.toString());
+        if (attachment.attachmentContentType == "text/html") {
+          const text = await attachment.attachmentText;
+          fulltext.push(text);
+          window.alert("fulltext is " + text);
+        } else {
+          // fulltext.push("Attachment contents may not be pdf or html or nothig!!");
+          window.alert("Attachment contents may not be html!!");
+          return fulltext.join(", ");
+        }
+      }
+    } else {
+      // fulltext.push("Attachment contents may not be pdf or html or nothig!!");
+      window.alert("Attachment contents may not be pdf or html or nothig!!");
+      return fulltext.join(", ");
+    }
+  }
+  // return splitString(fulltext.join(", "), 40);
+  return fulltext.join(", ");
+}
+
+// idからitemに入ってるpdfの全文の取得
+async function PdfTextfromid(id: string): Promise<string> {
+  const item = Zotero.Items.get(id);
+  const fulltext: string[] = [];
+  if (item.isRegularItem()) {
+    // not an attachment already
+    const attachmentIDs = item.getAttachments();
+    // window.alert("attachmentIDs are #"+ attachmentIDs.toString()+"#");
+    if (attachmentIDs.toString().length > 0) {
+      for (const id_text of attachmentIDs) {
+        const attachment = Zotero.Items.get(id_text);
+        // window.alert("attachment is "+ attachment.toString());
+        if (attachment.attachmentContentType == "application/pdf") {
+          const text = await attachment.attachmentText;
+          fulltext.push(text);
+          window.alert("fulltext is " + text);
+        } else {
+          // fulltext.push("Attachment contents may not be pdf or html or nothig!!");
+          window.alert("Attachment contents may not be pdf!!");
+          return fulltext.join(", ");
+        }
+      }
+    } else {
+      // fulltext.push("Attachment contents may not be pdf or html or nothig!!");
+      window.alert("Attachment contents may not be pdf or html or nothig!!");
+      return fulltext.join(", ");
     }
   }
   // return splitString(fulltext.join(", "), 40);
