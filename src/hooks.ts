@@ -148,7 +148,6 @@ async function FullTextfromid(id: string): Promise<string> {
         ) {
           const text = await attachment.attachmentText;
           fulltext.push(text);
-          window.alert("fulltext is " + text);
         }
       }
     } else {
@@ -244,8 +243,6 @@ async function GPT_summary(item: Zotero.Item) {
   }
 
   await addon.hooks.onTranslate(task);
-  // window.alert("task object: " + JSON.stringify(task, null, 2));
-  // window.alert("addon: " + JSON.stringify(addon.data.translate, null, 2));
 
   return task.result || "Not yet. I'm sorry!";
 }
@@ -268,15 +265,8 @@ async function GPT_summaryfromtext(fulltext: string) {
   }
 
   await addon.hooks.onTranslate(task);
-  // window.alert("task object: " + JSON.stringify(task, null, 2));
-  // window.alert("addon: " + JSON.stringify(addon.data.translate, null, 2));
 
   return task.result || "Not yet. I'm sorry!";
-}
-
-// ChatGPT のタグ付け結果の配列
-function GPT_tag(Tag: string[]) {
-  return Tag;
 }
 
 // ここに「pdfが読み込まれた時に実行される関数」を記述する
@@ -316,7 +306,6 @@ async function clicksummarizebtn(id: string, htmlid: string) {
   }
   const raw_text = fulltext.toString();
 
-  window.alert("raw_text is " + raw_text);
   // const summary_text = raw_text;
   // const summary_text = await GPT_summaryfromtext(raw_text);
   // summaries[id] = summary_text;
@@ -330,11 +319,6 @@ async function clicksummarizebtn(id: string, htmlid: string) {
   // JSONをパースしてTask型のオブジェクトに変換
   const task: Task = JSON.parse(jsonString);
 
-  //if (summaries[id] == undefined) {
-    // const text = await FullTextfromid(id);
-    // const abstract = item.getField("abstractNote");
-    // summaries[id] = abstract.toString();
-    // summaries[id] = await GPT_summaryfromtext(text);
   summaries[id] = task.Summarytext;
   //}
 
