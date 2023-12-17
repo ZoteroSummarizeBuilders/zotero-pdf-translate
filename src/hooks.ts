@@ -34,10 +34,23 @@ function registerLibraryTabPanel() {
             },
           },
           {
-            id: "summary-button",
+            id: "summary-button-pdf",
             tag: "button",
             properties: {
-              innerText: "要約を生成",
+              innerText: "PDF",
+            },
+            styles: {
+              width: "300px",
+              // height: "50px",
+              minWidth: "300px",
+              maxWidth: "300px",
+            },
+          },
+          {
+            id: "summary-button-html",
+            tag: "button",
+            properties: {
+              innerText: "html",
             },
             styles: {
               width: "300px",
@@ -414,8 +427,17 @@ async function onMainWindowLoad(win: Window): Promise<void> {
 
   initListener();
 
-  const btn = document.getElementById("summary-button");
-  btn?.addEventListener("click", () => {
+  //PDFボタンが押されたとき
+  const btn_pdf = document.getElementById("summary-button-pdf");
+  btn_pdf?.addEventListener("click", () => {
+    const item = ZoteroPane.getSelectedItems()[0];
+    // window.alert("btton is pushed");
+    clicksummarizebtn(item.id.toString());
+  });
+
+  //HTMLボタンが押されたとき
+  const btn_html = document.getElementById("summary-button-html");
+  btn_html?.addEventListener("click", () => {
     const item = ZoteroPane.getSelectedItems()[0];
     // window.alert("btton is pushed");
     clicksummarizebtn(item.id.toString());
