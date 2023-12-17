@@ -76,6 +76,7 @@ const gptTranslate = async function (
 
         // Remove \n\n from the beginning of the data
         data.result = result.replace(/^\n\n/, "");
+        // window.alert("data object: " + JSON.stringify(data, null, 2));
         preLength = e.target.response.length;
       };
     },

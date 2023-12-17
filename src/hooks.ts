@@ -265,6 +265,7 @@ async function GPT_summaryfromtext(fulltext: string) {
   }
 
   await addon.hooks.onTranslate(task);
+  // window.alert("task object: " + JSON.stringify(task, null, 2));
 
   return task.result || "Not yet. I'm sorry!";
 }
